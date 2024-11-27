@@ -3,7 +3,7 @@ import AnalyticsImage from './Images/AnalyticsImage.svg';
 import ApproveImage from './Images/ApproveImage.svg';
 import {startInfoData} from "./StartInfo";
 
-import './Styles/SectionHero.css';
+import '../Styles/SectionHero.css';
 import DescriptionSection from "./DescriptionSection";
 
 

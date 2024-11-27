@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchLoginData } from "../Redux/Slies/authSlice";
 import { Box, TextField, Button, Typography, Modal } from "@mui/material";
-import "./Styles/LoginPopup.css";
+import "../Styles/LoginPopup.css";
 
 const LoginPopup = ({ open, onClose }) => {
     const [username, setUsername] = useState("");

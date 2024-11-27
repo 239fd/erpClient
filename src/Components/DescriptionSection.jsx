@@ -1,5 +1,5 @@
 import React from 'react';
-import './Styles/DescriptionSection.css';
+import '../Styles/DescriptionSection.css';
 
 
 function DescriptionSection(props){

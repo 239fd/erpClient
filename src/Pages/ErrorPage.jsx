@@ -1,7 +1,7 @@
 import NavBar from "../Components/NavBar";
 import React from "react";
 import ErrorImage from "../Components/Images/ErrorPage.svg"
-import "../Components/Styles/ErrorPage.css"
+import "../Styles/ErrorPage.css"
 
 
 const ErrorPage = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import "./Styles/Table.css"
+import "../Styles/Table.css"
 
 const useStyles = makeStyles({
     tableContainer: {

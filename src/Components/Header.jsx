@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@mui/material';
-import "./Styles/Header.css";
+import "../Styles/Header.css";
 
 const Header = ({ setLoginOpen, setRegisterOpen }) => {
     return (

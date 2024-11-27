@@ -15,7 +15,7 @@ import {
     InputLabel,
     FormControl
 } from '@mui/material';
-import './Styles/RegisterPopup.css';
+import '../Styles/RegisterPopup.css';
 
 const RegisterPopup = ({ open, onClose }) => {
     const [isNewOrganization, setIsNewOrganization] = useState(false);

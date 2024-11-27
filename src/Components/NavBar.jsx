@@ -11,7 +11,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useMediaQuery } from '@mui/material';
-import './Styles/NavBar.css';
+import '../Styles/NavBar.css';
 
 import { ReactComponent as HomeIcon } from './Images/CompleteImage.svg';
 import { ReactComponent as CheckIcon } from './Images/TransportationImage.svg';

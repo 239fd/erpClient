@@ -3,7 +3,7 @@ import factoryImage from './Images/FactoryImage3.svg';
 import computerImage from './Images/ComputerImage2.svg';
 import {startInfoData} from "./StartInfo";
 
-import './Styles/HeroSection.css';
+import '../Styles/HeroSection.css';
 import DescriptionSection from "./DescriptionSection";
 
 
