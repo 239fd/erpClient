@@ -1,92 +1,96 @@
-import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Checkbox, FormControlLabel, Modal } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { registerUserData, registerDirectorData } from "../Redux/Slies/authSlice";
+import {
+    Box,
+    TextField,
+    Button,
+    Typography,
+    Checkbox,
+    FormControlLabel,
+    Modal,
+    MenuItem,
+    Select,
+    InputLabel,
+    FormControl
+} from '@mui/material';
 import './Styles/RegisterPopup.css';
 
 const RegisterPopup = ({ open, onClose }) => {
     const [isNewOrganization, setIsNewOrganization] = useState(false);
-    const [fullName, setFullName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [secondName, setSecondName] = useState('');
+    const [surname, setSurname] = useState('');
     const [organizationNumber, setOrganizationNumber] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [registrationNumber, setRegistrationNumber] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [phone, setPhone] = useState('');
+    const [role, setRole] = useState('');
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    // Функция для валидации логина
-    const validateLogin = (username) => {
-        const regex = /^[^#{}\[\]()&%$]{6,}$/; // Должен быть не менее 6 символов и без запрещенных символов
-        return regex.test(username);
-    };
+    const status = useSelector((state) => state.auth.status);
+    const error = useSelector((state) => state.auth.errorCode);
 
-    // Функция для валидации пароля
-    const validatePassword = (password) => {
-        const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // Должен содержать буквы, цифры и специальные символы
-        return regex.test(password);
-    };
+    useEffect(() => {
+        if (status === "loaded") {
+            navigate("/main");
+            onClose();
+        }
+    }, [status, navigate, onClose]);
 
-    // Обработчик регистрации
-    const handleRegister = async () => {
-        setErrorMessage(''); // Сбрасываем сообщение об ошибке
+    const validateLogin = (username) => /^[^#{}\]()&%$]{6,}$/.test(username);
+    const validatePassword = (password) => /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password);
 
+    const handleRegister = () => {
         if (!validateLogin(username)) {
-            setErrorMessage('Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$');
+            alert("Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$");
             return;
         }
-
         if (!validatePassword(password)) {
-            setErrorMessage('Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы');
+            alert("Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы");
             return;
         }
 
-        const url = isNewOrganization
-            ? '/api/register/new-organization' // URL для новой организации
-            : '/api/register/existing-organization'; // URL для существующей организации
+        const signUpData = {
+            login: username,
+            password,
+            phone,
+            role,
+            firstName,
+            secondName,
+            surname,
+            organizationId: isNewOrganization ? '' : organizationNumber,
+        };
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                fullName,
-                organizationNumber,
-                username,
-                password,
-                registrationNumber: isNewOrganization ? '' : registrationNumber,
-            }),
-        });
-
-        if (response.ok) {
-            onClose(); // Закрываем модалку
-            navigate('/main'); // Переходим на главную страницу
-        } else {
-            const errorText = await response.text();
-            setErrorMessage(errorText); // Устанавливаем сообщение об ошибке
-            // Обнуление полей при ошибке
-            setFullName('');
-            setOrganizationNumber('');
-            setUsername('');
-            setPassword('');
-            setRegistrationNumber('');
-        }
+        const action = role === "ROLE_DIRECTOR" ? registerDirectorData : registerUserData;
+        dispatch(action(signUpData));
     };
 
-    // Обработчик изменения чекбокса
     const handleCheckboxChange = (event) => {
         setIsNewOrganization(event.target.checked);
+        if (event.target.checked && role === 'ROLE_DIRECTOR') {
+            setOrganizationNumber('');
+        }
     };
 
-    // Обработчик закрытия модалки
+    const handleRoleChange = (event) => {
+        setRole(event.target.value);
+        setIsNewOrganization(event.target.value === 'ROLE_DIRECTOR');
+    };
+
     const handleClose = () => {
         setIsNewOrganization(false);
-        setFullName('');
+        setFirstName('');
+        setSecondName('');
+        setSurname('');
         setOrganizationNumber('');
         setUsername('');
         setPassword('');
-        setRegistrationNumber('');
-        setErrorMessage('');
-        onClose(); // Закрываем модалку
+        setPhone('');
+        setRole('');
+        onClose();
     };
 
     return (
@@ -94,23 +98,48 @@ const RegisterPopup = ({ open, onClose }) => {
             <Box className="register-popup-box">
                 <Typography variant="h6" className="register-title">Регистрация</Typography>
                 <TextField
-                    label="ФИО"
+                    label="Имя"
                     variant="outlined"
                     fullWidth
                     margin="normal"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="register-input"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                 />
                 <TextField
-                    label="Номер организации"
+                    label="Фамилия"
                     variant="outlined"
                     fullWidth
                     margin="normal"
-                    value={organizationNumber}
-                    onChange={(e) => setOrganizationNumber(e.target.value)}
-                    className="register-input"
+                    value={secondName}
+                    onChange={(e) => setSecondName(e.target.value)}
                 />
+                <TextField
+                    label="Отчество"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={surname}
+                    onChange={(e) => setSurname(e.target.value)}
+                />
+                <FormControl fullWidth margin="normal">
+                    <InputLabel>Роль</InputLabel>
+                    <Select value={role} onChange={handleRoleChange} label="Роль">
+                        <MenuItem value="ROLE_WORKER">Рабочий</MenuItem>
+                        <MenuItem value="ROLE_ACCOUNTANT">Бухгалтер</MenuItem>
+                        <MenuItem value="ROLE_MANAGER">Менеджер</MenuItem>
+                        <MenuItem value="ROLE_DIRECTOR">Директор</MenuItem>
+                    </Select>
+                </FormControl>
+                {role && role !== 'ROLE_DIRECTOR' && !isNewOrganization && (
+                    <TextField
+                        label="Номер организации"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={organizationNumber}
+                        onChange={(e) => setOrganizationNumber(e.target.value)}
+                    />
+                )}
                 <TextField
                     label="Логин"
                     variant="outlined"
@@ -118,7 +147,6 @@ const RegisterPopup = ({ open, onClose }) => {
                     margin="normal"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="register-input"
                 />
                 <TextField
                     label="Пароль"
@@ -128,24 +156,28 @@ const RegisterPopup = ({ open, onClose }) => {
                     margin="normal"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="register-input"
                 />
                 <TextField
-                    label="Уникальный номер регистрации"
+                    label="Телефон"
                     variant="outlined"
                     fullWidth
                     margin="normal"
-                    disabled={isNewOrganization}
-                    value={registrationNumber}
-                    onChange={(e) => setRegistrationNumber(e.target.value)}
-                    className="register-input"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                 />
                 <FormControlLabel
                     control={<Checkbox checked={isNewOrganization} onChange={handleCheckboxChange} />}
                     label="Новая организация"
                 />
-                {errorMessage && <Typography color="error">{errorMessage}</Typography>} {/* Отображение ошибки */}
-                <Button variant="contained" color="primary" fullWidth onClick={handleRegister} className="register-button">Зарегистрироваться</Button>
+                {error && <Typography color="error">{error}</Typography>}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={handleRegister}
+                >
+                    Зарегистрироваться
+                </Button>
             </Box>
         </Modal>
     );

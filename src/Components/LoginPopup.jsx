@@ -1,62 +1,47 @@
-import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Modal } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import './Styles/LoginPopup.css';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { fetchLoginData } from "../Redux/Slies/authSlice";
+import { Box, TextField, Button, Typography, Modal } from "@mui/material";
+import "./Styles/LoginPopup.css";
 
 const LoginPopup = ({ open, onClose }) => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const validateLogin = (username) => {
-        const regex = /^[^#{}\[\]()&%$]{6,}$/; // Должен быть не менее 6 символов и без запрещенных символов
-        return regex.test(username);
-    };
+    const status = useSelector((state) => state.auth.status);
+    const errorMessage = useSelector((state) => state.auth.errorMessage);
 
-    const validatePassword = (password) => {
-        const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // Должен содержать буквы, цифры и специальные символы
-        return regex.test(password);
-    };
+    useEffect(() => {
+        if (status === "loaded") {
+            navigate("/main");
+            onClose();
+        }
+    }, [status, navigate, onClose]);
 
-    const handleLogin = async () => {
-        setErrorMessage(''); // Сбрасываем сообщение об ошибке
+    const validateLogin = (username) => /^[^#{}\]()&%$]{6,}$/.test(username);
+    const validatePassword = (password) =>
+        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password);
 
+    const handleLogin = () => {
         if (!validateLogin(username)) {
-            setErrorMessage('Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$');
+            alert("Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$");
             return;
         }
-
         if (!validatePassword(password)) {
-            setErrorMessage('Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы');
+            alert("Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы");
             return;
         }
 
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-
-        if (response.ok) {
-            onClose(); // Закрываем модалку
-            navigate('/main'); // Переходим на главную страницу
-        } else {
-            const errorText = await response.text();
-            setErrorMessage(errorText); // Устанавливаем сообщение об ошибке
-            // Обнуление полей при ошибке
-            setUsername('');
-            setPassword('');
-        }
+        dispatch(fetchLoginData({ username, password }));
     };
 
     const handleClose = () => {
-        setUsername('');
-        setPassword('');
-        setErrorMessage('');
-        onClose(); // Закрываем модалку
+        setUsername("");
+        setPassword("");
+        onClose();
     };
 
     return (
@@ -82,8 +67,16 @@ const LoginPopup = ({ open, onClose }) => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="login-input"
                 />
-                {errorMessage && <Typography color="error">{errorMessage}</Typography>} {/* Отображение ошибки */}
-                <Button variant="contained" color="primary" fullWidth onClick={handleLogin} className="login-button">Войти</Button>
+                {status === "error" && <Typography color="error">{errorMessage}</Typography>}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={handleLogin}
+                    className="login-button"
+                >
+                    Войти
+                </Button>
             </Box>
         </Modal>
     );
