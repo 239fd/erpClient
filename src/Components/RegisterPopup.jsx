@@ -31,14 +31,30 @@ const RegisterPopup = ({ open, onClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const status = useSelector((state) => state.auth.status);
+    let status = useSelector((state) => state.auth.status);
 
     useEffect(() => {
-        if (status === "loaded") {
-            onClose();
-            navigate("/");
+        if (!open) {
+            setFirstName('');
+            setSecondName('');
+            setSurname('');
+            setOrganizationNumber('');
+            setUsername('');
+            setPassword('');
+            setPhone('');
+            setRole('');
+            setIsNewOrganization(false);
         }
-    }, [status, navigate, onClose]);
+    }, [open]);
+
+
+    useEffect(() => {
+        if (status === "loaded" && open) {
+            navigate("/home");
+            status = "";
+            onClose();
+        }
+    }, [status, open, navigate, onClose]);
 
     const validateLogin = (username) => /^[^#{}\]()&%$]{6,}$/.test(username);
     const validatePassword = (password) => /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password);

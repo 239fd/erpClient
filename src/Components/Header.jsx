@@ -6,7 +6,6 @@ const Header = ({ setLoginOpen, setRegisterOpen }) => {
     return (
         <header>
             <div className="logo">WMS</div>
-
             <div className="auth-buttons">
                 <Button variant="text" onClick={() => setLoginOpen(true)}>Войти</Button>
                 <Button variant="contained" color="primary" onClick={() => setRegisterOpen(true)}>Регистрация</Button>

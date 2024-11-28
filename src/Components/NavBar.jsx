@@ -53,7 +53,6 @@ export default function NavBar() {
         }
     };
 
-
     const menuItems = [
         { icon: <HomeIcon className="icon" />, label: "Получить" },
         { icon: <CheckIcon className="icon" />, label: "Отправить" },

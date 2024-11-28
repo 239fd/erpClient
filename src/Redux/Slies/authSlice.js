@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../axios";
 
-// Async thunk для регистрации директора
 export const registerDirectorData = createAsyncThunk(
     "auth/registerDirectorData",
     async (params, { rejectWithValue }) => {
@@ -23,7 +22,6 @@ export const registerDirectorData = createAsyncThunk(
     }
 );
 
-// Async thunk для регистрации пользователя
 export const registerUserData = createAsyncThunk(
     "auth/registerUserData",
     async (params, { rejectWithValue }) => {
@@ -45,7 +43,6 @@ export const registerUserData = createAsyncThunk(
     }
 );
 
-// Async thunk для входа
 export const fetchLoginData = createAsyncThunk(
     "auth/fetchLoginData",
     async (params, { rejectWithValue }) => {
@@ -67,26 +64,25 @@ export const fetchLoginData = createAsyncThunk(
     }
 );
 
-// Начальное состояние
 const initialState = {
     user: null,
     status: "",
     errorMessage: "",
 };
 
-// Slice для auth
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
         logOut(state) {
             state.user = null;
+            state.status = "";
+            state.errorMessage = "";
             localStorage.removeItem("user");
         },
     },
     extraReducers: (builder) => {
         builder
-            // Регистрация директора
             .addCase(registerDirectorData.pending, (state) => {
                 state.status = "pending";
                 state.errorMessage = "";

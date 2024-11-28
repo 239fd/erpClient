@@ -15,11 +15,19 @@ const LoginPopup = ({ open, onClose }) => {
     const status = useSelector((state) => state.auth.status);
 
     useEffect(() => {
-        if (status === "loaded") {
-            navigate("/");
+        if (!open) {
+            setLogin("");
+            setPassword("");
+        }
+    }, [open]);
+
+    useEffect(() => {
+        if (status === "loaded" && open) {
+            navigate("/home");
             onClose();
         }
-    }, [status, navigate, onClose]);
+    }, [status, open, navigate, onClose]);
+
 
     const validateLogin = (login) => /^[^#{}\]()&%$]{6,}$/.test(login);
     const validatePassword = (password) =>
