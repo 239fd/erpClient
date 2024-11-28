@@ -1,21 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import TableComponent from '../Components/Table';
+import React from 'react';
+import DataTable from '../Components/DataTable';
 import NavBar from "../Components/NavBar";
-import {Button} from "@mui/material";
 import "../Styles/TakePage.css"
 
 const TakePage = () => {
-    const [data, setData] = useState([]);
-
-
     return (
         <div>
             <NavBar/>
-            <main className="main">
-                <TableComponent data={data} />
-
-            </main>
-       </div>
+            <div className="Table">
+                <DataTable />
+            </div>
+        </div>
     );
 };
 

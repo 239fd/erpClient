@@ -1,18 +1,20 @@
-import NavBar from "../Components/NavBar";
 import React from "react";
 import ErrorImage from "../Components/Images/ErrorPage.svg"
-import "../Styles/ErrorPage.css"
-
 
 const ErrorPage = () => {
-    return(
-        <div>
-            <NavBar/>
-            <section>
+    return (
+        <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            textAlign: "center"
+        }}>
+            <section className="image" style={{ width: "100%" }}>
                 <img src={ErrorImage} alt="Ошибка" style={{ width: "38%" }} />
             </section>
         </div>
-    )
+    );
 }
 
 export default ErrorPage;

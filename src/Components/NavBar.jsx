@@ -33,7 +33,8 @@ export default function NavBar() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const isMobile = useMediaQuery('(max-width:600px)');
     const navigate = useNavigate();
-    const dispatch = useDispatch(); // Инициализация dispatch
+    const dispatch = useDispatch();
+    const role = JSON.parse(localStorage.getItem("user"))?.role; // Получаем роль из localStorage
 
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -53,17 +54,75 @@ export default function NavBar() {
         }
     };
 
+    const handleNavigation = (path, allowedRoles) => {
+        if (!allowedRoles.includes(role)) {
+            toast.error("У вас нет доступа к этой странице.");
+        } else {
+            navigate(path);
+        }
+    };
+
     const menuItems = [
-        { icon: <HomeIcon className="icon" />, label: "Получить" },
-        { icon: <CheckIcon className="icon" />, label: "Отправить" },
-        { icon: <LocalShippingIcon className="icon" />, label: "Инвентаризация" },
-        { icon: <InventoryIcon className="icon" />, label: "Списать" },
-        { icon: <DeleteIcon className="icon" />, label: "Переоценка" },
-        { icon: <ListAltIcon className="icon" />, label: "Склад" },
-        { icon: <AssessmentIcon className="icon" />, label: "Отчёт" },
-        { icon: <BusinessIcon className="icon" />, label: "Поставщик" },
-        { icon: <OrderIcon className="icon" />, label: "Заказ" },
-        { icon: <TrendingUpIcon className="icon" />, label: "Прогноз" },
+        {
+            icon: <HomeIcon className="icon" />,
+            label: "Получить",
+            path: "/take",
+            allowedRoles: ["ROLE_WORKER"], // Доступ для Рабочих
+        },
+        {
+            icon: <CheckIcon className="icon" />,
+            label: "Отправить",
+            path: "/send",
+            allowedRoles: ["ROLE_WORKER"], // Доступ для Рабочих
+        },
+        {
+            icon: <LocalShippingIcon className="icon" />,
+            label: "Инвентаризация",
+            path: "/inventory",
+            allowedRoles: ["ROLE_ACCOUNTANT"], // Доступ для Бухгалтеров
+        },
+        {
+            icon: <InventoryIcon className="icon" />,
+            label: "Списать",
+            path: "/writeoff",
+            allowedRoles: ["ROLE_ACCOUNTANT"], // Доступ для Бухгалтеров
+        },
+        {
+            icon: <DeleteIcon className="icon" />,
+            label: "Переоценка",
+            path: "/revaluation",
+            allowedRoles: ["ROLE_ACCOUNTANT"], // Доступ для Бухгалтеров
+        },
+        {
+            icon: <ListAltIcon className="icon" />,
+            label: "Склад",
+            path: "/warehouse",
+            allowedRoles: ["ROLE_DIRECTOR"], // Доступ для Директоров
+        },
+        {
+            icon: <AssessmentIcon className="icon" />,
+            label: "Отчёт",
+            path: "/report",
+            allowedRoles: ["ROLE_DIRECTOR"], // Доступ для Директоров
+        },
+        {
+            icon: <BusinessIcon className="icon" />,
+            label: "Поставщик",
+            path: "/supplier",
+            allowedRoles: ["ROLE_MANAGER"], // Доступ для Менеджеров
+        },
+        {
+            icon: <OrderIcon className="icon" />,
+            label: "Заказ",
+            path: "/order",
+            allowedRoles: ["ROLE_MANAGER"], // Доступ для Менеджеров
+        },
+        {
+            icon: <TrendingUpIcon className="icon" />,
+            label: "Прогноз",
+            path: "/forecast",
+            allowedRoles: ["ROLE_MANAGER"], // Доступ для Менеджеров
+        },
     ];
 
     return (
@@ -91,7 +150,11 @@ export default function NavBar() {
                                 >
                                     <List>
                                         {menuItems.map((item, index) => (
-                                            <ListItem button key={index}>
+                                            <ListItem
+                                                button
+                                                key={index}
+                                                onClick={() => handleNavigation(item.path, item.allowedRoles)}
+                                            >
                                                 <ListItemIcon sx={{ color: 'black' }}>{item.icon}</ListItemIcon>
                                                 <ListItemText primary={item.label} />
                                             </ListItem>
@@ -103,7 +166,15 @@ export default function NavBar() {
                     ) : (
                         <Box display="flex" justifyContent="center" flexGrow={1}>
                             {menuItems.map((item, index) => (
-                                <NavItem key={index} icon={item.icon} label={item.label} />
+                                <Button
+                                    key={index}
+                                    color="inherit"
+                                    onClick={() => handleNavigation(item.path, item.allowedRoles)}
+                                    className="nav-item"
+                                >
+                                    {item.icon}
+                                    <span className="label">{item.label}</span>
+                                </Button>
                             ))}
                         </Box>
                     )}
@@ -112,24 +183,19 @@ export default function NavBar() {
                         style={{
                             display: 'flex',
                             flexDirection: 'column',
-                            width: '44px',
-                            height: '44px',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 'auto',
+                            height: 'auto',
+                            padding: 10,
                         }}
                         onClick={handleLogout}
                     >
-                        <ExitIcon />
+                        <ExitIcon style={{ width: '24px', height: '24px' }} />
+                        <span style={{ fontSize: '12px' }}>Выйти</span>
                     </Button>
                 </Box>
             </Toolbar>
         </AppBar>
-    );
-}
-
-function NavItem({ icon, label }) {
-    return (
-        <Button color="inherit" className="nav-item">
-            {icon}
-            <span className="label">{label}</span>
-        </Button>
     );
 }

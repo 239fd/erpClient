@@ -9,9 +9,11 @@ import ReportsPage from './Pages/ReportsPage';
 import SettingsPage from './Pages/SettingsPage';
 import MainPage from "./Pages/MainPage";
 import WelcomePage from "./Pages/WelcomePage";
-import ProtectedRoute from "./Components/ProtectedRoute";
+import ProtectedRoute from "./Components/Routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ErrorPage from "./Pages/ErrorPage";
+import TakePage from "./Pages/TakePage";
 
 function App() {
     return (
@@ -20,8 +22,9 @@ function App() {
                 <ToastContainer position="top-right" autoClose={3000} />
                 <Routes>
                     <Route path="/" element={<WelcomePage />} />
-
-                    <Route path="/home" element={<ProtectedRoute><MainPage /></ProtectedRoute>} />
+                    <Route path="/home" element={<ProtectedRoute allowedRoles={["ROLE_WORKER", "ROLE_DIRECTOR", "ROLE_ACCOUNTANT", "ROLE_MANAGER"]}><MainPage /></ProtectedRoute>} />
+                    <Route path="/take" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakePage /></ProtectedRoute>} />
+                    <Route path="/send" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakePage /></ProtectedRoute>} />
                     <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                     <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
                     <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
@@ -29,7 +32,7 @@ function App() {
                     <Route path="/warehouse" element={<ProtectedRoute><WarehousePage /></ProtectedRoute>} />
                     <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-                    <Route path="*" element={<div>404 - Page Not Found</div>} />
+                    <Route path="*" element={<ErrorPage/>} />
                 </Routes>
             </div>
         </Router>
