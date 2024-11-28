@@ -10,7 +10,9 @@ import {
     List,
     ListItem,
     ListItemText,
+    IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import NavBar from "../../Components/NavBar";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -86,6 +88,10 @@ const TakeGoods = () => {
         }
     };
 
+    const handleRemoveGood = (indexToRemove) => {
+        setGoodsData((prev) => prev.filter((_, index) => index !== indexToRemove));
+    };
+
     const handleSubmit = async () => {
         setIsSubmitting(true);
         try {
@@ -132,9 +138,7 @@ const TakeGoods = () => {
     return (
         <div>
             <NavBar />
-            <Box sx={{
-                width: "100%", padding: "16px"
-            }}>
+            <Box sx={{ width: "100%", padding: "16px" }}>
                 <Stepper activeStep={activeStep} alternativeLabel>
                     {steps.map((label, index) => (
                         <Step key={index}>
@@ -264,13 +268,23 @@ const TakeGoods = () => {
                             borderRadius: 1,
                             maxHeight: "400px",
                             overflowY: "auto",
-                            justifyContent: "center",
                         }}
                     >
                         <Typography variant="h6">Добавленные товары:</Typography>
                         <List>
                             {goodsData.map((good, index) => (
-                                <ListItem key={index}>
+                                <ListItem
+                                    key={index}
+                                    secondaryAction={
+                                        <IconButton
+                                            edge="end"
+                                            aria-label="delete"
+                                            onClick={() => handleRemoveGood(index)}
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    }
+                                >
                                     <ListItemText
                                         primary={`${good.name} (${good.amount} ${good.unit})`}
                                         secondary={`Цена: ${good.price}, Габариты: ${good.length}-${good.width}-${good.height}, Вес: ${good.weight}`}

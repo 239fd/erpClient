@@ -15,6 +15,8 @@ import "react-toastify/dist/ReactToastify.css";
 import ErrorPage from "./Pages/ErrorPage";
 import TakePage from "./Pages/TakePage";
 import TakeGoods from "./Pages/Stages/TakeGoods";
+import SendPage from "./Pages/SendPage";
+import SendGoods from "./Pages/Stages/SendGoods";
 
 function App() {
 
@@ -27,7 +29,8 @@ function App() {
                     <Route path="/home" element={<ProtectedRoute allowedRoles={["ROLE_WORKER", "ROLE_DIRECTOR", "ROLE_ACCOUNTANT", "ROLE_MANAGER"]}><MainPage /></ProtectedRoute>} />
                     <Route path="/take" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakePage /></ProtectedRoute>} />
                     <Route path="/take/take-goods" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakeGoods /></ProtectedRoute>} />
-                    <Route path="/send" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakePage /></ProtectedRoute>} />
+                    <Route path="/send" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><SendPage /></ProtectedRoute>} />
+                    <Route path="/send/send-goods" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><SendGoods /></ProtectedRoute>} />
                     <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                     <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
                     <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
