@@ -4,42 +4,54 @@ import { useNavigate } from "react-router-dom";
 import { fetchLoginData } from "../Redux/Slies/authSlice";
 import { Box, TextField, Button, Typography, Modal } from "@mui/material";
 import "../Styles/LoginPopup.css";
+import { toast } from "react-toastify";
 
 const LoginPopup = ({ open, onClose }) => {
-    const [username, setUsername] = useState("");
+    const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const status = useSelector((state) => state.auth.status);
-    const errorMessage = useSelector((state) => state.auth.errorMessage);
 
     useEffect(() => {
         if (status === "loaded") {
-            navigate("/main");
+            navigate("/");
             onClose();
         }
     }, [status, navigate, onClose]);
 
-    const validateLogin = (username) => /^[^#{}\]()&%$]{6,}$/.test(username);
+    const validateLogin = (login) => /^[^#{}\]()&%$]{6,}$/.test(login);
     const validatePassword = (password) =>
         /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password);
 
-    const handleLogin = () => {
-        if (!validateLogin(username)) {
-            alert("Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$");
+    const handleLogin = async () => {
+        if (!validateLogin(login)) {
+            toast.error("Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$");
             return;
         }
         if (!validatePassword(password)) {
-            alert("Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы");
+            toast.error("Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы");
             return;
         }
 
-        dispatch(fetchLoginData({ username, password }));
+        try {
+            const response = await dispatch(fetchLoginData({ login, password })).unwrap(); // Распаковываем данные
+            localStorage.setItem("jwtToken", response.token); // Сохраняем токен
+            toast.success("Успешный вход!");
+            navigate("/home");
+            onClose();
+        } catch (error) {
+            if (error.includes("Unknown user")) {
+                toast.error("Неверный логин или пароль.");
+            } else {
+                toast.error("Ошибка входа. Попробуйте снова.");
+            }
+        }
     };
 
     const handleClose = () => {
-        setUsername("");
+        setLogin("");
         setPassword("");
         onClose();
     };
@@ -53,8 +65,8 @@ const LoginPopup = ({ open, onClose }) => {
                     variant="outlined"
                     fullWidth
                     margin="normal"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={login}
+                    onChange={(e) => setLogin(e.target.value)}
                     className="login-input"
                 />
                 <TextField
@@ -67,7 +79,6 @@ const LoginPopup = ({ open, onClose }) => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="login-input"
                 />
-                {status === "error" && <Typography color="error">{errorMessage}</Typography>}
                 <Button
                     variant="contained"
                     color="primary"

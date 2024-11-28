@@ -3,7 +3,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: #FFE98A;
+    background-color: rgb(255, 233, 138);
 }
 
 .logo {
@@ -35,6 +35,7 @@ nav {
 
     .auth-buttons {
         width: 100%;
-        justify-content: space-between;
+        justify-content: center;
     }
 }
+@media (max-width: 725px) {}

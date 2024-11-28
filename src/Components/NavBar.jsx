@@ -11,6 +11,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useMediaQuery } from '@mui/material';
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { logOut } from "../Redux/Slies/authSlice";
+import { toast } from "react-toastify";
 import '../Styles/NavBar.css';
 
 import { ReactComponent as HomeIcon } from './Images/CompleteImage.svg';
@@ -23,11 +27,13 @@ import { ReactComponent as AssessmentIcon } from './Images/ChartImage.svg';
 import { ReactComponent as BusinessIcon } from './Images/enter_kmim22s90f7v.svg';
 import { ReactComponent as OrderIcon } from './Images/ListImage.svg';
 import { ReactComponent as TrendingUpIcon } from './Images/GraphImage.svg';
-import { ReactComponent as AccountIcon } from './Images/GraphImage.svg';
+import { ReactComponent as ExitIcon } from "./Images/Exit.svg";
 
 export default function NavBar() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const isMobile = useMediaQuery('(max-width:600px)');
+    const navigate = useNavigate();
+    const dispatch = useDispatch(); // Инициализация dispatch
 
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -35,6 +41,18 @@ export default function NavBar() {
         }
         setDrawerOpen(open);
     };
+
+    const handleLogout = () => {
+        try {
+            localStorage.clear();
+            dispatch(logOut());
+            toast.success("Вы успешно вышли из системы.");
+            navigate("/");
+        } catch (error) {
+            toast.error("Ошибка при выходе.");
+        }
+    };
+
 
     const menuItems = [
         { icon: <HomeIcon className="icon" />, label: "Получить" },
@@ -90,8 +108,17 @@ export default function NavBar() {
                             ))}
                         </Box>
                     )}
-                    <Button color="inherit" style={{ display: 'flex', flexDirection: 'column' }}>
-                        <AccountIcon />
+                    <Button
+                        color="inherit"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '44px',
+                            height: '44px',
+                        }}
+                        onClick={handleLogout}
+                    >
+                        <ExitIcon />
                     </Button>
                 </Box>
             </Toolbar>

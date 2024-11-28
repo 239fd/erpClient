@@ -16,6 +16,7 @@ import {
     FormControl
 } from '@mui/material';
 import '../Styles/RegisterPopup.css';
+import { toast } from "react-toastify";
 
 const RegisterPopup = ({ open, onClose }) => {
     const [isNewOrganization, setIsNewOrganization] = useState(false);
@@ -31,25 +32,24 @@ const RegisterPopup = ({ open, onClose }) => {
     const navigate = useNavigate();
 
     const status = useSelector((state) => state.auth.status);
-    const error = useSelector((state) => state.auth.errorCode);
 
     useEffect(() => {
         if (status === "loaded") {
-            navigate("/main");
             onClose();
+            navigate("/");
         }
     }, [status, navigate, onClose]);
 
     const validateLogin = (username) => /^[^#{}\]()&%$]{6,}$/.test(username);
     const validatePassword = (password) => /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password);
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         if (!validateLogin(username)) {
-            alert("Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$");
+            toast.error("Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$");
             return;
         }
         if (!validatePassword(password)) {
-            alert("Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы");
+            toast.error("Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы");
             return;
         }
 
@@ -65,7 +65,22 @@ const RegisterPopup = ({ open, onClose }) => {
         };
 
         const action = role === "ROLE_DIRECTOR" ? registerDirectorData : registerUserData;
-        dispatch(action(signUpData));
+
+        try {
+            const response = await dispatch(action(signUpData)).unwrap(); // Распаковываем успешный ответ
+            localStorage.setItem("jwtToken", response.token); // Сохраняем токен
+            toast.success("Регистрация прошла успешно!");
+            navigate("/home"); // Перенаправляем на главную страницу
+            onClose(); // Закрываем модальное окно
+        } catch (error) {
+            if (error.includes("Login already exist")) {
+                toast.error("Логин уже занят. Попробуйте другой.");
+            } else if (error.includes("Invalid organization")) {
+                toast.error("Неверный номер организации. Проверьте данные.");
+            } else {
+                toast.error(error || "Ошибка регистрации. Попробуйте ещё раз.");
+            }
+        }
     };
 
     const handleCheckboxChange = (event) => {
@@ -169,7 +184,6 @@ const RegisterPopup = ({ open, onClose }) => {
                     control={<Checkbox checked={isNewOrganization} onChange={handleCheckboxChange} />}
                     label="Новая организация"
                 />
-                {error && <Typography color="error">{error}</Typography>}
                 <Button
                     variant="contained"
                     color="primary"

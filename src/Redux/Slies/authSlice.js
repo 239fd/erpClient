@@ -8,16 +8,17 @@ export const registerDirectorData = createAsyncThunk(
         try {
             const response = await axios.post("/registerdirector", params);
 
-            if (!response.status) {
-                throw new Error("ServerError: 500");
+            if (response.status !== 200) {
+                throw new Error(response.data.message || "Ошибка регистрации директора");
             }
 
             const data = response.data.data;
-            localStorage.user = JSON.stringify(data);
+            localStorage.setItem("user", JSON.stringify(data));
 
             return data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            const errorMessage = error.response?.data?.message || "Ошибка регистрации директора";
+            return rejectWithValue(errorMessage);
         }
     }
 );
@@ -29,16 +30,17 @@ export const registerUserData = createAsyncThunk(
         try {
             const response = await axios.post("/register", params);
 
-            if (!response.status) {
-                throw new Error("ServerError: 500");
+            if (response.status !== 200) {
+                throw new Error(response.data.message || "Ошибка регистрации пользователя");
             }
 
             const data = response.data.data;
-            localStorage.user = JSON.stringify(data);
+            localStorage.setItem("user", JSON.stringify(data));
 
             return data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            const errorMessage = error.response?.data?.message || "Ошибка регистрации пользователя";
+            return rejectWithValue(errorMessage);
         }
     }
 );
@@ -51,27 +53,23 @@ export const fetchLoginData = createAsyncThunk(
             const response = await axios.post("/login", params);
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || "Ошибка сервера");
+                throw new Error(response.data.message || "Ошибка входа");
             }
 
             const data = response.data.data;
-            localStorage.user = JSON.stringify(data);
+            localStorage.setItem("user", JSON.stringify(data));
 
             return data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            const errorMessage = error.response?.data?.message || "Ошибка входа";
+            return rejectWithValue(errorMessage);
         }
     }
 );
 
 // Начальное состояние
 const initialState = {
-    user: {
-        id: 0,
-        login: "",
-        firstName: "",
-        token: "",
-    },
+    user: null,
     status: "",
     errorMessage: "",
 };
@@ -91,6 +89,7 @@ const authSlice = createSlice({
             // Регистрация директора
             .addCase(registerDirectorData.pending, (state) => {
                 state.status = "pending";
+                state.errorMessage = "";
             })
             .addCase(registerDirectorData.fulfilled, (state, action) => {
                 state.status = "loaded";
@@ -98,12 +97,13 @@ const authSlice = createSlice({
             })
             .addCase(registerDirectorData.rejected, (state, action) => {
                 state.status = "error";
-                state.errorMessage = action.payload || "Ошибка регистрации директора";
+                state.errorMessage = action.payload; // Сообщение об ошибке от сервера
             })
 
             // Регистрация пользователя
             .addCase(registerUserData.pending, (state) => {
                 state.status = "pending";
+                state.errorMessage = "";
             })
             .addCase(registerUserData.fulfilled, (state, action) => {
                 state.status = "loaded";
@@ -111,12 +111,13 @@ const authSlice = createSlice({
             })
             .addCase(registerUserData.rejected, (state, action) => {
                 state.status = "error";
-                state.errorMessage = action.payload || "Ошибка регистрации пользователя";
+                state.errorMessage = action.payload; // Сообщение об ошибке от сервера
             })
 
             // Логин
             .addCase(fetchLoginData.pending, (state) => {
                 state.status = "pending";
+                state.errorMessage = "";
             })
             .addCase(fetchLoginData.fulfilled, (state, action) => {
                 state.status = "loaded";
@@ -124,7 +125,7 @@ const authSlice = createSlice({
             })
             .addCase(fetchLoginData.rejected, (state, action) => {
                 state.status = "error";
-                state.errorMessage = action.payload || "Ошибка входа";
+                state.errorMessage = action.payload; // Сообщение об ошибке от сервера
             });
     },
 });
