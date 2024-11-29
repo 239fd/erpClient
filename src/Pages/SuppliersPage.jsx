@@ -14,6 +14,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { toast } from "react-toastify";
 import NavBar from "../Components/NavBar";
+import "../Styles/SuppliersPage.css"
 
 const SuppliersPage = () => {
     const [suppliers, setSuppliers] = useState([]);
@@ -238,87 +239,89 @@ const SuppliersPage = () => {
     ];
 
     return (
-        <div>
+        <div >
             <NavBar />
-            <Box sx={{ padding: "16px" }}>
-                <Typography variant="h4" mb={2}>Управление поставщиками</Typography>
-                <Box sx={{ height: 400, mb: 4 }}>
-                    <DataGrid rows={suppliers} columns={columnsSuppliers} pageSize={5} />
-                </Box>
-                <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                        <TextField
-                            label="Название"
-                            value={newSupplier.name}
-                            onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
-                        <TextField
-                            label="ИНН"
-                            value={newSupplier.inn}
-                            onChange={(e) => setNewSupplier({ ...newSupplier, inn: e.target.value })}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
-                        <TextField
-                            label="Адрес"
-                            value={newSupplier.address}
-                            onChange={(e) => setNewSupplier({ ...newSupplier, address: e.target.value })}
-                            fullWidth
-                        />
-                    </Grid>
+            <div className="subMain">
+                <Box sx={{ padding: "16px" }}>
+                    <Typography variant="h4" mb={2}>Управление поставщиками</Typography>
+                    <Box sx={{ height: 400, mb: 4 }}>
+                        <DataGrid rows={suppliers} columns={columnsSuppliers} pageSize={5} />
+                    </Box>
+                    <Grid container spacing={2}>
+                        <Grid item xs={4}>
+                            <TextField
+                                label="Название"
+                                value={newSupplier.name}
+                                onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                label="ИНН"
+                                value={newSupplier.inn}
+                                onChange={(e) => setNewSupplier({ ...newSupplier, inn: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                label="Адрес"
+                                value={newSupplier.address}
+                                onChange={(e) => setNewSupplier({ ...newSupplier, address: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
 
-                    <Grid item xs={12}>
-                        <Button variant="contained" onClick={handleAddSupplier}>
-                            Добавить поставщика
-                        </Button>
+                        <Grid item xs={12}>
+                            <Button variant="contained" onClick={handleAddSupplier}>
+                                Добавить поставщика
+                            </Button>
+                        </Grid>
                     </Grid>
-                </Grid>
-                <Typography variant="h5" mt={4} mb={2}>Управление запасами</Typography>
-                <Box sx={{ height: 400, mb: 4 }}>
-                    <DataGrid rows={stocks} columns={columnsStocks} pageSize={5} />
+                    <Typography variant="h5" mt={4} mb={2}>Управление запасами</Typography>
+                    <Box sx={{ height: 400, mb: 4 }}>
+                        <DataGrid rows={stocks} columns={columnsStocks} pageSize={5} />
+                    </Box>
+                    <Grid container spacing={2}>
+                        <Grid item xs={4}>
+                            <TextField
+                                label="Название"
+                                value={newStock.name}
+                                onChange={(e) => setNewStock({ ...newStock, name: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                label="Количество"
+                                type="number"
+                                value={newStock.amount}
+                                onChange={(e) => setNewStock({ ...newStock, amount: parseInt(e.target.value, 10) })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                label="Цена"
+                                type="number"
+                                value={newStock.price}
+                                onChange={(e) => setNewStock({ ...newStock, price: parseFloat(e.target.value) })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={16}>
+                            <Button
+                                variant="contained"
+                                onClick={handleAddStock}
+                                disabled={!selectedSupplier}
+                            >
+                                Добавить запас
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Box>
-                <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                        <TextField
-                            label="Название"
-                            value={newStock.name}
-                            onChange={(e) => setNewStock({ ...newStock, name: e.target.value })}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
-                        <TextField
-                            label="Количество"
-                            type="number"
-                            value={newStock.amount}
-                            onChange={(e) => setNewStock({ ...newStock, amount: parseInt(e.target.value, 10) })}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
-                        <TextField
-                            label="Цена"
-                            type="number"
-                            value={newStock.price}
-                            onChange={(e) => setNewStock({ ...newStock, price: parseFloat(e.target.value) })}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={16}>
-                        <Button
-                            variant="contained"
-                            onClick={handleAddStock}
-                            disabled={!selectedSupplier}
-                        >
-                            Добавить запас
-                        </Button>
-                    </Grid>
-                </Grid>
-            </Box>
+            </div>
         </div>
     );
 };
