@@ -11,11 +11,11 @@ import NavBar from "../Components/NavBar";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const InventoryPage = () => {
+const RevaluationPage = () => {
     const [products, setProducts] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
-    const [quantities, setQuantities] = useState("");
-    const [isSubmitEnabled, setIsSubmitEnabled] = useState(false); // Управляет состоянием кнопки "Отправить"
+    const [newPrices, setNewPrices] = useState("");
+    const [isSubmitEnabled, setIsSubmitEnabled] = useState(false); // Управляет состоянием кнопки "Переоценить товары"
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -48,25 +48,20 @@ const InventoryPage = () => {
         setSelectedProducts(ids);
     };
 
-    const validateInputs = () => {
-        const quantitiesArray = quantities
+    const validatePrices = () => {
+        const pricesArray = newPrices
             .split(",")
-            .map((qty) => parseInt(qty.trim(), 10));
+            .map((price) => parseFloat(price.trim()));
 
-        if (selectedProducts.length === 0) {
-            toast.error("Выберите хотя бы один товар.");
-            return false;
-        }
-
-        if (quantitiesArray.length !== selectedProducts.length) {
+        if (pricesArray.length !== selectedProducts.length) {
             toast.error(
-                "Количество введённых значений должно совпадать с количеством выбранных товаров."
+                "Количество новых цен должно совпадать с количеством выбранных товаров."
             );
             return false;
         }
 
-        if (quantitiesArray.some((qty) => isNaN(qty) || qty < 0)) {
-            toast.error("Количество должно быть числом и больше нуля.");
+        if (pricesArray.some((price) => isNaN(price) || price <= 0)) {
+            toast.error("Убедитесь, что все цены корректны и больше нуля.");
             return false;
         }
 
@@ -74,29 +69,33 @@ const InventoryPage = () => {
     };
 
     const handleAdd = () => {
-        if (validateInputs()) {
+        if (selectedProducts.length === 0) {
+            toast.error("Выберите хотя бы один товар.");
+            return;
+        }
+        if (validatePrices()) {
             setIsSubmitEnabled(true);
-            toast.success("Данные успешно добавлены!");
+            toast.success("Цены успешно добавлены!");
         } else {
             setIsSubmitEnabled(false);
         }
     };
 
-    const handleInventory = async () => {
-        const quantitiesArray = quantities
+    const handleRevaluation = async () => {
+        const pricesArray = newPrices
             .split(",")
-            .map((qty) => parseInt(qty.trim(), 10));
-
-        const requestBody = {
-            ids: selectedProducts.map(Number),
-            amounts: quantitiesArray,
-        };
+            .map((price) => parseFloat(price.trim()));
 
         try {
             setIsSubmitting(true);
             const token = localStorage.getItem("jwtToken");
+            const requestBody = {
+                productIds: selectedProducts.map(Number),
+                newPrice: pricesArray,
+            };
+
             const response = await axios.post(
-                "http://localhost:8080/api/v1/accountant/inventory",
+                "http://localhost:8080/api/v1/accountant/revaluation",
                 requestBody,
                 {
                     headers: {
@@ -109,15 +108,15 @@ const InventoryPage = () => {
             const blob = new Blob([response.data], { type: "application/pdf" });
             const link = document.createElement("a");
             link.href = window.URL.createObjectURL(blob);
-            link.download = "inventory_report.pdf";
+            link.download = "revaluation_act.pdf";
             link.click();
 
-            toast.success("Инвентаризация выполнена успешно!");
+            toast.success("Переоценка выполнена успешно!");
             setSelectedProducts([]);
-            setQuantities("");
+            setNewPrices("");
             setIsSubmitEnabled(false);
         } catch (error) {
-            toast.error("Ошибка при выполнении инвентаризации.");
+            toast.error("Ошибка при выполнении переоценки.");
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -160,9 +159,9 @@ const InventoryPage = () => {
                 <Grid container spacing={2} alignItems="center">
                     <Grid item xs={12} md={8}>
                         <TextField
-                            label="Количество (через запятую)"
-                            value={quantities}
-                            onChange={(e) => setQuantities(e.target.value)}
+                            label="Новые цены (через запятую)"
+                            value={newPrices}
+                            onChange={(e) => setNewPrices(e.target.value)}
                             fullWidth
                         />
                     </Grid>
@@ -182,12 +181,12 @@ const InventoryPage = () => {
                     <Grid item xs={12}>
                         <Button
                             variant="contained"
-                            color="secondary"
+                            color="primary"
                             fullWidth
-                            onClick={handleInventory}
+                            onClick={handleRevaluation}
                             disabled={!isSubmitEnabled || isSubmitting}
                         >
-                            Провести инвентаризацию
+                            Переоценить товары
                         </Button>
                     </Grid>
                 </Grid>
@@ -196,4 +195,4 @@ const InventoryPage = () => {
     );
 };
 
-export default InventoryPage;
+export default RevaluationPage;

@@ -67,61 +67,61 @@ export default function NavBar() {
             icon: <HomeIcon className="icon" />,
             label: "Получить",
             path: "/take",
-            allowedRoles: ["ROLE_WORKER"], // Доступ для Рабочих
+            allowedRoles: ["ROLE_WORKER"],
         },
         {
             icon: <CheckIcon className="icon" />,
             label: "Отправить",
             path: "/send",
-            allowedRoles: ["ROLE_WORKER"], // Доступ для Рабочих
+            allowedRoles: ["ROLE_WORKER"],
         },
         {
             icon: <LocalShippingIcon className="icon" />,
             label: "Инвентаризация",
             path: "/inventory",
-            allowedRoles: ["ROLE_ACCOUNTANT"], // Доступ для Бухгалтеров
+            allowedRoles: ["ROLE_ACCOUNTANT"],
         },
         {
             icon: <InventoryIcon className="icon" />,
             label: "Списать",
             path: "/writeoff",
-            allowedRoles: ["ROLE_ACCOUNTANT"], // Доступ для Бухгалтеров
+            allowedRoles: ["ROLE_ACCOUNTANT"],
         },
         {
             icon: <DeleteIcon className="icon" />,
             label: "Переоценка",
             path: "/revaluation",
-            allowedRoles: ["ROLE_ACCOUNTANT"], // Доступ для Бухгалтеров
+            allowedRoles: ["ROLE_ACCOUNTANT"],
         },
         {
             icon: <ListAltIcon className="icon" />,
             label: "Склад",
             path: "/warehouse",
-            allowedRoles: ["ROLE_DIRECTOR"], // Доступ для Директоров
+            allowedRoles: ["ROLE_DIRECTOR"],
         },
         {
             icon: <AssessmentIcon className="icon" />,
             label: "Отчёт",
             path: "/report",
-            allowedRoles: ["ROLE_DIRECTOR"], // Доступ для Директоров
+            allowedRoles: ["ROLE_DIRECTOR"],
         },
         {
             icon: <BusinessIcon className="icon" />,
             label: "Поставщик",
             path: "/supplier",
-            allowedRoles: ["ROLE_MANAGER"], // Доступ для Менеджеров
+            allowedRoles: ["ROLE_MANAGER"],
         },
         {
             icon: <OrderIcon className="icon" />,
             label: "Заказ",
             path: "/order",
-            allowedRoles: ["ROLE_MANAGER"], // Доступ для Менеджеров
+            allowedRoles: ["ROLE_MANAGER"],
         },
         {
             icon: <TrendingUpIcon className="icon" />,
             label: "Прогноз",
             path: "/forecast",
-            allowedRoles: ["ROLE_MANAGER"], // Доступ для Менеджеров
+            allowedRoles: ["ROLE_MANAGER"],
         },
     ];
 

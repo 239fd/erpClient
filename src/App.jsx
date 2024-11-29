@@ -17,6 +17,9 @@ import TakePage from "./Pages/TakePage";
 import TakeGoods from "./Pages/Stages/TakeGoods";
 import SendPage from "./Pages/SendPage";
 import SendGoods from "./Pages/Stages/SendGoods";
+import RevaluationPage from "./Pages/RevaluationPage";
+import WriteOffPage from "./Pages/WriteOffPage";
+import ForecastPage from "./Pages/ForecastPage";
 
 function App() {
 
@@ -27,17 +30,23 @@ function App() {
                 <Routes>
                     <Route path="/" element={<WelcomePage />} />
                     <Route path="/home" element={<ProtectedRoute allowedRoles={["ROLE_WORKER", "ROLE_DIRECTOR", "ROLE_ACCOUNTANT", "ROLE_MANAGER"]}><MainPage /></ProtectedRoute>} />
+
                     <Route path="/take" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakePage /></ProtectedRoute>} />
                     <Route path="/take/take-goods" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakeGoods /></ProtectedRoute>} />
                     <Route path="/send" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><SendPage /></ProtectedRoute>} />
                     <Route path="/send/send-goods" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><SendGoods /></ProtectedRoute>} />
-                    <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-                    <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
-                    <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-                    <Route path="/suppliers" element={<ProtectedRoute><SuppliersPage /></ProtectedRoute>} />
+
+                    <Route path="/writeoff" element={<ProtectedRoute allowedRoles={("ROLE_ACCOUNTANT")}><WriteOffPage /></ProtectedRoute>} />
+                    <Route path="/inventory" element={<ProtectedRoute allowedRoles={("ROLE_ACCOUNTANT")}><InventoryPage /></ProtectedRoute>} />
+                    <Route path="/revaluation" element={<ProtectedRoute allowedRoles={("ROLE_ACCOUNTANT")}><RevaluationPage /></ProtectedRoute>} />
+
                     <Route path="/warehouse" element={<ProtectedRoute><WarehousePage /></ProtectedRoute>} />
                     <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
-                    <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+                    <Route path="/supplier" element={<ProtectedRoute allowedRoles={("ROLE_MANAGER")}><SuppliersPage /></ProtectedRoute>} />
+                    <Route path="/order" element={<ProtectedRoute allowedRoles={("ROLE_MANAGER")}><OrdersPage /></ProtectedRoute>} />
+                    <Route path="/forecast" element={<ProtectedRoute allowedRoles={("ROLE_MANAGER")}><ForecastPage /></ProtectedRoute>} />
+
                     <Route path="*" element={<ErrorPage/>} />
                 </Routes>
             </div>

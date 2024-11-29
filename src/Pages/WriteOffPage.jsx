@@ -11,11 +11,13 @@ import NavBar from "../Components/NavBar";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const InventoryPage = () => {
+const WriteOffPage = () => {
     const [products, setProducts] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [quantities, setQuantities] = useState("");
-    const [isSubmitEnabled, setIsSubmitEnabled] = useState(false); // Управляет состоянием кнопки "Отправить"
+    const [reason, setReason] = useState("");
+    const [writeOffDate, setWriteOffDate] = useState("");
+    const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -60,13 +62,26 @@ const InventoryPage = () => {
 
         if (quantitiesArray.length !== selectedProducts.length) {
             toast.error(
-                "Количество введённых значений должно совпадать с количеством выбранных товаров."
+                "Количество товаров должно совпадать с количеством введённых количеств."
             );
             return false;
         }
 
         if (quantitiesArray.some((qty) => isNaN(qty) || qty < 0)) {
-            toast.error("Количество должно быть числом и больше нуля.");
+            toast.error("Количество товаров должно быть числом и больше нуля.");
+            return false;
+        }
+
+        if (!reason.trim()) {
+            toast.error("Укажите причину списания.");
+            return false;
+        }
+
+        const today = new Date().toISOString().split("T")[0];
+        if (!writeOffDate || new Date(writeOffDate) > new Date(today)) {
+            toast.error(
+                "Дата приказа должна быть корректной и не позднее сегодняшнего дня."
+            );
             return false;
         }
 
@@ -82,21 +97,23 @@ const InventoryPage = () => {
         }
     };
 
-    const handleInventory = async () => {
+    const handleWriteOff = async () => {
         const quantitiesArray = quantities
             .split(",")
             .map((qty) => parseInt(qty.trim(), 10));
 
         const requestBody = {
-            ids: selectedProducts.map(Number),
-            amounts: quantitiesArray,
+            productId: selectedProducts.map(Number),
+            quantity: quantitiesArray,
+            reason,
+            date: writeOffDate,
         };
 
         try {
             setIsSubmitting(true);
             const token = localStorage.getItem("jwtToken");
             const response = await axios.post(
-                "http://localhost:8080/api/v1/accountant/inventory",
+                "http://localhost:8080/api/v1/accountant/writeoff",
                 requestBody,
                 {
                     headers: {
@@ -109,15 +126,17 @@ const InventoryPage = () => {
             const blob = new Blob([response.data], { type: "application/pdf" });
             const link = document.createElement("a");
             link.href = window.URL.createObjectURL(blob);
-            link.download = "inventory_report.pdf";
+            link.download = "write_off_act.pdf";
             link.click();
 
-            toast.success("Инвентаризация выполнена успешно!");
+            toast.success("Списание выполнено успешно!");
             setSelectedProducts([]);
             setQuantities("");
+            setReason("");
+            setWriteOffDate("");
             setIsSubmitEnabled(false);
         } catch (error) {
-            toast.error("Ошибка при выполнении инвентаризации.");
+            toast.error("Ошибка при выполнении списания.");
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -137,12 +156,11 @@ const InventoryPage = () => {
             <Box
                 sx={{
                     width: "80%",
-                    padding: "3%",
                     margin: "auto",
                     display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
                     flexDirection: "column",
+                    alignItems: "center",
+                    padding: 4,
                 }}
             >
                 <Box sx={{ height: 400, width: "100%", mb: 4 }}>
@@ -158,7 +176,7 @@ const InventoryPage = () => {
                     />
                 </Box>
                 <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} md={8}>
+                    <Grid item xs={12} md={4}>
                         <TextField
                             label="Количество (через запятую)"
                             value={quantities}
@@ -167,27 +185,45 @@ const InventoryPage = () => {
                         />
                     </Grid>
                     <Grid item xs={12} md={4}>
+                        <TextField
+                            label="Причина списания"
+                            value={reason}
+                            onChange={(e) => setReason(e.target.value)}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <TextField
+                            type="date"
+                            label="Дата приказа"
+                            InputLabelProps={{ shrink: true }}
+                            value={writeOffDate}
+                            onChange={(e) => setWriteOffDate(e.target.value)}
+                            fullWidth
+                        />
+                    </Grid>
+                </Grid>
+                <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
+                    <Grid item xs={12} md={6}>
                         <Button
                             variant="contained"
                             color="primary"
-                            fullWidth
                             onClick={handleAdd}
                             disabled={isSubmitting}
+                            sx={{ width: "100%" }}
                         >
                             Добавить
                         </Button>
                     </Grid>
-                </Grid>
-                <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} md={6}>
                         <Button
                             variant="contained"
                             color="secondary"
-                            fullWidth
-                            onClick={handleInventory}
+                            onClick={handleWriteOff}
                             disabled={!isSubmitEnabled || isSubmitting}
+                            sx={{ width: "100%" }}
                         >
-                            Провести инвентаризацию
+                            Списать товары
                         </Button>
                     </Grid>
                 </Grid>
@@ -196,4 +232,4 @@ const InventoryPage = () => {
     );
 };
 
-export default InventoryPage;
+export default WriteOffPage;
