@@ -1,12 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import DashboardPage from './Pages/DashboardPage';
 import InventoryPage from './Pages/InventoryPage';
 import OrdersPage from './Pages/OrdersPage';
 import SuppliersPage from './Pages/SuppliersPage';
 import WarehousePage from './Pages/WarehousePage';
 import ReportsPage from './Pages/ReportsPage';
-import SettingsPage from './Pages/SettingsPage';
 import MainPage from "./Pages/MainPage";
 import WelcomePage from "./Pages/WelcomePage";
 import ProtectedRoute from "./Components/Routes/ProtectedRoute";
@@ -40,8 +38,8 @@ function App() {
                     <Route path="/inventory" element={<ProtectedRoute allowedRoles={("ROLE_ACCOUNTANT")}><InventoryPage /></ProtectedRoute>} />
                     <Route path="/revaluation" element={<ProtectedRoute allowedRoles={("ROLE_ACCOUNTANT")}><RevaluationPage /></ProtectedRoute>} />
 
-                    <Route path="/warehouse" element={<ProtectedRoute><WarehousePage /></ProtectedRoute>} />
-                    <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+                    <Route path="/warehouse" element={<ProtectedRoute allowedRoles={("ROLE_DIRECTOR")}> <WarehousePage /></ProtectedRoute>} />
+                    <Route path="/report" element={<ProtectedRoute allowedRoles={("ROLE_DIRECTOR")}><ReportsPage /></ProtectedRoute>} />
 
                     <Route path="/supplier" element={<ProtectedRoute allowedRoles={("ROLE_MANAGER")}><SuppliersPage /></ProtectedRoute>} />
                     <Route path="/order" element={<ProtectedRoute allowedRoles={("ROLE_MANAGER")}><OrdersPage /></ProtectedRoute>} />
