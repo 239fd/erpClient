@@ -3,6 +3,7 @@ import { Box, Button, Typography, TextField } from "@mui/material";
 import { Line } from "react-chartjs-2";
 import axios from "axios";
 import { toast } from "react-toastify";
+import NavBar from "../Components/NavBar";
 
 const ForecastPage = () => {
     const [productId, setProductId] = useState("");
@@ -46,47 +47,52 @@ const ForecastPage = () => {
     };
 
     return (
-        <Box sx={{ padding: "16px" }}>
-            <Typography variant="h4" mb={2}>Прогноз спроса</Typography>
-            <Box sx={{ mb: 2 }}>
-                <TextField
-                    label="ID продукта"
-                    value={productId}
-                    onChange={(e) => setProductId(e.target.value)}
-                    type="number"
-                    fullWidth
-                />
-                <TextField
-                    label="Период (месяцы)"
-                    value={months}
-                    onChange={(e) => setMonths(e.target.value)}
-                    type="number"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                />
-                <TextField
-                    label="Прогнозный период (месяцы)"
-                    value={forecastMonths}
-                    onChange={(e) => setForecastMonths(e.target.value)}
-                    type="number"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                />
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleForecast}
-                    sx={{ mt: 2 }}
-                >
-                    Построить прогноз
-                </Button>
-            </Box>
-            {forecastData && (
-                <Box sx={{ mt: 4 }}>
-                    <Line data={chartData} />
+        <div>
+            <NavBar/>
+            <div>
+                <Box sx={{ padding: "16px" }}>
+                    <Typography variant="h4" mb={2}>Прогноз спроса</Typography>
+                    <Box sx={{ mb: 2 }}>
+                        <TextField
+                            label="ID продукта"
+                            value={productId}
+                            onChange={(e) => setProductId(e.target.value)}
+                            type="number"
+                            fullWidth
+                        />
+                        <TextField
+                            label="Период (месяцы)"
+                            value={months}
+                            onChange={(e) => setMonths(e.target.value)}
+                            type="number"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                        />
+                        <TextField
+                            label="Прогнозный период (месяцы)"
+                            value={forecastMonths}
+                            onChange={(e) => setForecastMonths(e.target.value)}
+                            type="number"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                        />
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleForecast}
+                            sx={{ mt: 2 }}
+                        >
+                            Построить прогноз
+                        </Button>
+                    </Box>
+                    {forecastData && (
+                        <Box sx={{ mt: 4 }}>
+                            <Line data={chartData} />
+                        </Box>
+                    )}
                 </Box>
-            )}
-        </Box>
+            </div>
+        </div>
     );
 };
 

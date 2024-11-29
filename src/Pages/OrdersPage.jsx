@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box, Button, Typography, TextField } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
+import NavBar from "../Components/NavBar";
 
 const OrdersPage = () => {
     const [productId, setProductId] = useState("");
@@ -32,40 +33,46 @@ const OrdersPage = () => {
     };
 
     return (
-        <Box sx={{ padding: "16px" }}>
-            <Typography variant="h4" mb={2}>Создание заказа</Typography>
-            <TextField
-                label="ID продукта"
-                value={productId}
-                onChange={(e) => setProductId(e.target.value)}
-                type="number"
-                fullWidth
-                sx={{ mb: 2 }}
-            />
-            <TextField
-                label="Период (месяцы)"
-                value={months}
-                onChange={(e) => setMonths(e.target.value)}
-                type="number"
-                fullWidth
-                sx={{ mb: 2 }}
-            />
-            <TextField
-                label="Прогнозный период (месяцы)"
-                value={forecastMonths}
-                onChange={(e) => setForecastMonths(e.target.value)}
-                type="number"
-                fullWidth
-                sx={{ mb: 2 }}
-            />
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleCreateOrder}
-            >
-                Создать заказ
-            </Button>
-        </Box>
+        <div>
+            <NavBar/>
+            <div>
+                <Box sx={{ padding: "16px" }}>
+                    <Typography variant="h4" mb={2}>Создание заказа</Typography>
+                    <TextField
+                        label="ID продукта"
+                        value={productId}
+                        onChange={(e) => setProductId(e.target.value)}
+                        type="number"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                    />
+                    <TextField
+                        label="Период (месяцы)"
+                        value={months}
+                        onChange={(e) => setMonths(e.target.value)}
+                        type="number"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                    />
+                    <TextField
+                        label="Прогнозный период (месяцы)"
+                        value={forecastMonths}
+                        onChange={(e) => setForecastMonths(e.target.value)}
+                        type="number"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateOrder}
+                    >
+                        Создать заказ
+                    </Button>
+                </Box>
+            </div>
+        </div>
+
     );
 };
 

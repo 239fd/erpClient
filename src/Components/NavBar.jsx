@@ -31,7 +31,7 @@ import { ReactComponent as ExitIcon } from "./Images/Exit.svg";
 
 export default function NavBar() {
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const isMobile = useMediaQuery('(max-width:600px)');
+    const isMobile = useMediaQuery('(max-width:950px)');
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const role = JSON.parse(localStorage.getItem("user"))?.role; // Получаем роль из localStorage
