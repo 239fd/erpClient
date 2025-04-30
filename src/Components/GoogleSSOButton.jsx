@@ -4,7 +4,7 @@ const GoogleSSOButton = () => {
     const clientId =
         '282982624308-g5c1nltrc5jkacg86fvn485bchdj0egl.apps.googleusercontent.com';
     const redirectUri =
-        'http://localhost:8765/auth-service/login/oauth2/code/google';
+        'http://localhost:8761';
     const scope = 'openid email profile';
 
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
