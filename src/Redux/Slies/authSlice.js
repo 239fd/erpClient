@@ -93,10 +93,9 @@ const authSlice = createSlice({
             })
             .addCase(registerDirectorData.rejected, (state, action) => {
                 state.status = "error";
-                state.errorMessage = action.payload; // Сообщение об ошибке от сервера
+                state.errorMessage = action.payload;
             })
 
-            // Регистрация пользователя
             .addCase(registerUserData.pending, (state) => {
                 state.status = "pending";
                 state.errorMessage = "";
@@ -107,7 +106,7 @@ const authSlice = createSlice({
             })
             .addCase(registerUserData.rejected, (state, action) => {
                 state.status = "error";
-                state.errorMessage = action.payload; // Сообщение об ошибке от сервера
+                state.errorMessage = action.payload;
             })
 
             // Логин
@@ -121,7 +120,7 @@ const authSlice = createSlice({
             })
             .addCase(fetchLoginData.rejected, (state, action) => {
                 state.status = "error";
-                state.errorMessage = action.payload; // Сообщение об ошибке от сервера
+                state.errorMessage = action.payload;
             });
     },
 });

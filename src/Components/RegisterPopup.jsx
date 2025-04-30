@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import '../Styles/RegisterPopup.css';
 import { toast } from "react-toastify";
+import GoogleSSOButton from "./GoogleSSOButton";
 
 const RegisterPopup = ({ open, onClose }) => {
     const [isNewOrganization, setIsNewOrganization] = useState(false);
@@ -197,7 +198,7 @@ const RegisterPopup = ({ open, onClose }) => {
                     onChange={(e) => setPhone(e.target.value)}
                 />
                 <FormControlLabel
-                    control={<Checkbox checked={isNewOrganization} onChange={handleCheckboxChange} />}
+                    control={<Checkbox checked={isNewOrganization} onChange={handleCheckboxChange}/>}
                     label="Новая организация"
                 />
                 <Button
@@ -208,6 +209,13 @@ const RegisterPopup = ({ open, onClose }) => {
                 >
                     Зарегистрироваться
                 </Button>
+                <div className={'sso-buttons-container'}>
+                    <a href="https://oauth.yandex.ru/authorize?response_type=code&client_id=95213dd24d8746ab8ff24ccc64b067e4&redirect_uri=http://localhost:8765/auth-service/auth/oauth2/success"
+                       className="yandex-login-button">
+                        Войти через Яндекс
+                    </a>
+                    <GoogleSSOButton></GoogleSSOButton>
+                </div>
             </Box>
         </Modal>
     );

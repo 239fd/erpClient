@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     const user = localStorage.getItem("user");
 
     const parsedUser = JSON.parse(user);
-    const role = parsedUser.role;
+    const role = parsedUser?.role;
 
     if (!token) {
         toast.error("Вы не авторизованы. Пожалуйста, войдите в систему.");

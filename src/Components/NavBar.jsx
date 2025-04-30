@@ -34,7 +34,7 @@ export default function NavBar() {
     const isMobile = useMediaQuery('(max-width:950px)');
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const role = JSON.parse(localStorage.getItem("user"))?.role; // Получаем роль из localStorage
+    const role = JSON.parse(localStorage.getItem("user"))?.role;
 
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
