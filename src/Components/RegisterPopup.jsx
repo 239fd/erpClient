@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useReducer, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { registerUserData, registerDirectorData } from "../Redux/Slies/authSlice";
 import {
@@ -18,55 +18,68 @@ import {
 import '../Styles/RegisterPopup.css';
 import { toast } from "react-toastify";
 import GoogleSSOButton from "./GoogleSSOButton";
+import YandexSSOButton from "./YandexSSOButton";
+
+const initialFormState = {
+    firstName: '',
+    secondName: '',
+    surname: '',
+    organizationNumber: '',
+    username: '',
+    password: '',
+    phone: '',
+    role: '',
+    isNewOrganization: false
+};
+
+function formReducer(state, action) {
+    switch (action.type) {
+        case "SET_FIELD":
+            return { ...state, [action.field]: action.value };
+        case "RESET":
+            return initialFormState;
+        default:
+            return state;
+    }
+}
+
+const Roles = {
+    WORKER: "ROLE_WORKER",
+    ACCOUNTANT: "ROLE_ACCOUNTANT",
+    MANAGER: "ROLE_MANAGER",
+    DIRECTOR: "ROLE_DIRECTOR"
+};
 
 const RegisterPopup = ({ open, onClose }) => {
-    const [isNewOrganization, setIsNewOrganization] = useState(false);
-    const [firstName, setFirstName] = useState('');
-    const [secondName, setSecondName] = useState('');
-    const [surname, setSurname] = useState('');
-    const [organizationNumber, setOrganizationNumber] = useState('');
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [phone, setPhone] = useState('');
-    const [role, setRole] = useState('');
+    const [form, dispatchForm] = useReducer(formReducer, initialFormState);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    let status = useSelector((state) => state.auth.status);
-
     useEffect(() => {
         if (!open) {
-            setFirstName('');
-            setSecondName('');
-            setSurname('');
-            setOrganizationNumber('');
-            setUsername('');
-            setPassword('');
-            setPhone('');
-            setRole('');
-            setIsNewOrganization(false);
+            dispatchForm({ type: "RESET" });
         }
     }, [open]);
 
-
-    useEffect(() => {
-        if (status === "loaded" && open) {
-            navigate("/home");
-            status = "";
-            onClose();
-        }
-    }, [status, open, navigate, onClose]);
-
     const validateLogin = (username) => /^[^#{}\]()&%$]{6,}$/.test(username);
-    const validatePassword = (password) => /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password);
+    const validatePassword = (password) =>
+        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password);
 
     const handleRegister = async () => {
+        const { username, password, role, firstName, secondName, surname, phone, isNewOrganization, organizationNumber } = form;
+
+        if (!firstName || !secondName || !surname || !phone || !role || !username || !password) {
+            toast.error("Пожалуйста, заполните все поля.");
+            return;
+        }
+
         if (!validateLogin(username)) {
             toast.error("Логин должен содержать не менее 6 символов и не содержать #{}[]()&%$");
             return;
         }
+
         if (!validatePassword(password)) {
-            toast.error("Пароль должен содержать не менее 8 символов, включать буквы, цифры и специальные символы");
+            toast.error("Пароль должен содержать не менее 8 символов, включать буквы, цифры и спецсимвол");
             return;
         }
 
@@ -81,141 +94,115 @@ const RegisterPopup = ({ open, onClose }) => {
             organizationId: isNewOrganization ? '' : organizationNumber,
         };
 
-        const action = role === "ROLE_DIRECTOR" ? registerDirectorData : registerUserData;
+        const getRegisterAction = (role) =>
+            role === Roles.DIRECTOR ? registerDirectorData : registerUserData;
 
         try {
-            const response = await dispatch(action(signUpData)).unwrap(); // Распаковываем успешный ответ
-            localStorage.setItem("jwtToken", response.token); // Сохраняем токен
+            const response = await dispatch(getRegisterAction(role)(signUpData)).unwrap();
+            localStorage.setItem("jwtToken", response.token);
+
             toast.success("Регистрация прошла успешно!");
-            navigate("/home"); // Перенаправляем на главную страницу
-            onClose(); // Закрываем модальное окно
+            navigate("/home");
+            onClose();
         } catch (error) {
-            if (error.includes("Login already exist")) {
+            const errorMessage = typeof error === "string" ? error : "Ошибка регистрации. Попробуйте ещё раз.";
+
+            if (errorMessage.includes("Login already exist")) {
                 toast.error("Логин уже занят. Попробуйте другой.");
-            } else if (error.includes("Invalid organization")) {
+            } else if (errorMessage.includes("Invalid organization")) {
                 toast.error("Неверный номер организации. Проверьте данные.");
             } else {
-                toast.error(error || "Ошибка регистрации. Попробуйте ещё раз.");
+                toast.error(errorMessage);
             }
         }
     };
 
-    const handleCheckboxChange = (event) => {
-        setIsNewOrganization(event.target.checked);
-        if (event.target.checked && role === 'ROLE_DIRECTOR') {
-            setOrganizationNumber('');
+    const handleKeyPress = (e) => {
+        if (e.key === "Enter") {
+            handleRegister();
         }
     };
 
-    const handleRoleChange = (event) => {
-        setRole(event.target.value);
-        setIsNewOrganization(event.target.value === 'ROLE_DIRECTOR');
-    };
-
     const handleClose = () => {
-        setIsNewOrganization(false);
-        setFirstName('');
-        setSecondName('');
-        setSurname('');
-        setOrganizationNumber('');
-        setUsername('');
-        setPassword('');
-        setPhone('');
-        setRole('');
+        dispatchForm({ type: "RESET" });
         onClose();
     };
 
     return (
         <Modal open={open} onClose={handleClose}>
-            <Box className="register-popup-box">
+            <Box className="register-popup-box" onKeyDown={handleKeyPress}>
                 <Typography variant="h6" className="register-title">Регистрация</Typography>
-                <TextField
-                    label="Имя"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+
+                <TextField label="Имя" fullWidth margin="normal"
+                           value={form.firstName}
+                           onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "firstName", value: e.target.value })}
                 />
-                <TextField
-                    label="Фамилия"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={secondName}
-                    onChange={(e) => setSecondName(e.target.value)}
+                <TextField label="Фамилия" fullWidth margin="normal"
+                           value={form.secondName}
+                           onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "secondName", value: e.target.value })}
                 />
-                <TextField
-                    label="Отчество"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={surname}
-                    onChange={(e) => setSurname(e.target.value)}
+                <TextField label="Отчество" fullWidth margin="normal"
+                           value={form.surname}
+                           onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "surname", value: e.target.value })}
                 />
+
                 <FormControl fullWidth margin="normal">
                     <InputLabel>Роль</InputLabel>
-                    <Select value={role} onChange={handleRoleChange} label="Роль">
-                        <MenuItem value="ROLE_WORKER">Рабочий</MenuItem>
-                        <MenuItem value="ROLE_ACCOUNTANT">Бухгалтер</MenuItem>
-                        <MenuItem value="ROLE_MANAGER">Менеджер</MenuItem>
-                        <MenuItem value="ROLE_DIRECTOR">Директор</MenuItem>
+                    <Select value={form.role} onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "role", value: e.target.value })}>
+                        <MenuItem value={Roles.WORKER}>Рабочий</MenuItem>
+                        <MenuItem value={Roles.ACCOUNTANT}>Бухгалтер</MenuItem>
+                        <MenuItem value={Roles.MANAGER}>Менеджер</MenuItem>
+                        <MenuItem value={Roles.DIRECTOR}>Директор</MenuItem>
                     </Select>
                 </FormControl>
-                {role && role !== 'ROLE_DIRECTOR' && !isNewOrganization && (
+
+                {form.role && form.role !== Roles.DIRECTOR && !form.isNewOrganization && (
                     <TextField
                         label="Номер организации"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        value={organizationNumber}
-                        onChange={(e) => setOrganizationNumber(e.target.value)}
+                        fullWidth margin="normal"
+                        value={form.organizationNumber}
+                        onChange={(e) =>
+                            dispatchForm({ type: "SET_FIELD", field: "organizationNumber", value: e.target.value })
+                        }
                     />
                 )}
+
                 <TextField
-                    label="Логин"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    label="Логин" fullWidth margin="normal"
+                    value={form.username}
+                    onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "username", value: e.target.value })}
                 />
                 <TextField
-                    label="Пароль"
-                    variant="outlined"
-                    type="password"
-                    fullWidth
-                    margin="normal"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    label="Пароль" type="password" fullWidth margin="normal"
+                    value={form.password}
+                    onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "password", value: e.target.value })}
                 />
                 <TextField
-                    label="Телефон"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    label="Телефон" fullWidth margin="normal"
+                    value={form.phone}
+                    onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "phone", value: e.target.value })}
                 />
+
                 <FormControlLabel
-                    control={<Checkbox checked={isNewOrganization} onChange={handleCheckboxChange}/>}
+                    control={
+                        <Checkbox
+                            checked={form.isNewOrganization}
+                            onChange={(e) =>
+                                dispatchForm({ type: "SET_FIELD", field: "isNewOrganization", value: e.target.checked })
+                            }
+                        />
+                    }
                     label="Новая организация"
                 />
-                <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    onClick={handleRegister}
-                >
+
+                <Button variant="contained" color="primary" fullWidth onClick={handleRegister}>
                     Зарегистрироваться
                 </Button>
+
                 <div className="or-divider">или</div>
-                <div className={'sso-buttons-container'}>
-                    <a href="https://oauth.yandex.ru/authorize?response_type=code&client_id=95213dd24d8746ab8ff24ccc64b067e4&redirect_uri=http://localhost:8761"
-                       className="yandex-login-button">
-                        Войти через Яндекс
-                    </a>
-                    <GoogleSSOButton></GoogleSSOButton>
+                <div className="sso-buttons-container">
+                    <YandexSSOButton />
+                    <GoogleSSOButton />
                 </div>
             </Box>
         </Modal>

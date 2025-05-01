@@ -1,45 +1,35 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../axios";
 
+const registerUser = async (params, rejectWithValue, userType) => {
+    try {
+        const response = await axios.post("/auth-service/auth/register", params);
+
+        if (response.status !== 200) {
+            throw new Error(response.data.message || `Ошибка регистрации ${userType}`);
+        }
+
+        const data = response.data.data;
+        localStorage.setItem("user", JSON.stringify(data));
+
+        return data;
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || `Ошибка регистрации ${userType}`;
+        return rejectWithValue(errorMessage);
+    }
+};
+
 export const registerDirectorData = createAsyncThunk(
     "auth/registerDirectorData",
     async (params, { rejectWithValue }) => {
-        try {
-            const response = await axios.post("/registerdirector", params);
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || "Ошибка регистрации директора");
-            }
-
-            const data = response.data.data;
-            localStorage.setItem("user", JSON.stringify(data));
-
-            return data;
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || "Ошибка регистрации директора";
-            return rejectWithValue(errorMessage);
-        }
+        return registerUser(params, rejectWithValue, "директора");
     }
 );
 
 export const registerUserData = createAsyncThunk(
     "auth/registerUserData",
     async (params, { rejectWithValue }) => {
-        try {
-            const response = await axios.post("/register", params);
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || "Ошибка регистрации пользователя");
-            }
-
-            const data = response.data.data;
-            localStorage.setItem("user", JSON.stringify(data));
-
-            return data;
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || "Ошибка регистрации пользователя";
-            return rejectWithValue(errorMessage);
-        }
+        return registerUser(params, rejectWithValue, "пользователя");
     }
 );
 
