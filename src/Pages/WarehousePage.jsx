@@ -217,7 +217,9 @@ const WarehousePage = () => {
 
                 <Typography variant="h6" mt={4} mb={2}>Добавить стеллаж</Typography>
                 <Grid container spacing={2} mb={2}>
-                    <Grid item xs={3}><TextField label="Вместимость" type="number" fullWidth value={newRack.capacity} onChange={(e) => setNewRack((prev) => ({ ...prev, capacity: Number(e.target.value) }))} /></Grid>
+                    <Grid item xs={3} >
+                        <TextField label="Вместимость" type="number" fullWidth value={newRack.capacity} onChange={(e) => setNewRack((prev) => ({ ...prev, capacity: Number(e.target.value) }))} />
+                    </Grid>
                     <Grid item xs={9}>
                         <Typography variant="subtitle1">Добавить ячейку:</Typography>
                         <Grid container spacing={2}>
@@ -236,7 +238,7 @@ const WarehousePage = () => {
                     </Typography>
                 ))}
 
-                <Button variant="contained" onClick={handleAddRack} sx={{ mt: 2 }}>Добавить стеллаж</Button>
+                <Button variant="contained" onClick={handleAddRack} sx={{ mt: 4, ml: 2 }}>Добавить стеллаж</Button>
                 <Button variant="contained" color="primary" sx={{ mt: 4, ml: 2 }} onClick={handleCreateWarehouse} disabled={isSubmitting}>Добавить склад</Button>
             </Box>
         </div>
