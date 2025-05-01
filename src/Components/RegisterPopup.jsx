@@ -91,11 +91,11 @@ const RegisterPopup = ({ open, onClose }) => {
             title: role,
         } : {
             login: username,
-                password,
-                firstName,
-                phone,
-                secondName,
-                title: role,
+            password,
+            firstName,
+            phone,
+            secondName,
+            title: role,
             code: organizationNumber,
         }
 

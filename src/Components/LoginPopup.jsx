@@ -44,8 +44,8 @@ const LoginPopup = ({ open, onClose }) => {
         }
 
         try {
-            const response = await dispatch(fetchLoginData({ login, password })).unwrap(); // Распаковываем данные
-            localStorage.setItem("jwtToken", response.token); // Сохраняем токен
+            const response = await dispatch(fetchLoginData({ login, password })).unwrap();
+            localStorage.setItem("jwtToken", response.token);
             toast.success("Успешный вход!");
             navigate("/home");
             onClose();

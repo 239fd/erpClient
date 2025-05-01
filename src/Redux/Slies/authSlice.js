@@ -3,7 +3,15 @@ import axios from "../axios";
 
 const registerUser = async (params, rejectWithValue, userType) => {
     try {
-        const response = await axios.post("/auth-service/auth/register", params);
+        const response = await axios.post(
+            "/auth-service/auth/register",
+            params,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        );
 
         if (response.status !== 200) {
             throw new Error(response.data.message || `Ошибка регистрации ${userType}`);
@@ -37,7 +45,7 @@ export const fetchLoginData = createAsyncThunk(
     "auth/fetchLoginData",
     async (params, { rejectWithValue }) => {
         try {
-            const response = await axios.post("/login", params);
+            const response = await axios.post("/auth-service/auth/login", params);
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || "Ошибка входа");
@@ -99,7 +107,6 @@ const authSlice = createSlice({
                 state.errorMessage = action.payload;
             })
 
-            // Логин
             .addCase(fetchLoginData.pending, (state) => {
                 state.status = "pending";
                 state.errorMessage = "";
