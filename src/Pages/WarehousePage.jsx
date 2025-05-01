@@ -43,6 +43,8 @@ const WarehousePage = () => {
         fetchWarehouses();
     }, []);
 
+    console.log(newWarehouse)
+
     const fetchOrganization = async () => {
         const id = localStorage.getItem("id");
         try {
@@ -215,9 +217,10 @@ const WarehousePage = () => {
                     <Grid item xs={6}><TextField label="Адрес склада" fullWidth value={newWarehouse.address} onChange={(e) => setNewWarehouse({ ...newWarehouse, address: e.target.value })} /></Grid>
                 </Grid>
 
-                <Typography variant="h6" mt={4} mb={2}>Добавить стеллаж</Typography>
-                <Grid container spacing={2} mb={2} alignItems="center">
-                    <Grid item xs={3}>
+                <Typography variant="h5" mt={4} mb={2}>Добавить стеллаж</Typography>
+
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={3} mb={2}>
                         <TextField
                             label="Вместимость"
                             type="number"
@@ -232,7 +235,7 @@ const WarehousePage = () => {
                         <Typography variant="subtitle1" sx={{ mb: 1 }}>
                             Добавить ячейку:
                         </Typography>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={2} >
                             <Grid item xs={4}>
                                 <TextField
                                     label="Длина"
@@ -275,7 +278,7 @@ const WarehousePage = () => {
                     </Grid>
                 </Grid>
 
-                <Button variant="contained" onClick={handleAddRack} sx={{ mt: 2 }}>Добавить стеллаж</Button>
+                <Button variant="contained" onClick={handleAddRack} sx={{ mt: 4, ml: 2 }}>Добавить стеллаж</Button>
                 <Button variant="contained" color="primary" sx={{ mt: 4, ml: 2 }} onClick={handleCreateWarehouse} disabled={isSubmitting}>Добавить склад</Button>
             </Box>
         </div>
