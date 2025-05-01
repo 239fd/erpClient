@@ -216,25 +216,64 @@ const WarehousePage = () => {
                 </Grid>
 
                 <Typography variant="h6" mt={4} mb={2}>Добавить стеллаж</Typography>
-                <Grid container spacing={2} mb={2}>
-                    <Grid item xs={3}><TextField label="Вместимость" type="number" fullWidth value={newRack.capacity} onChange={(e) => setNewRack((prev) => ({ ...prev, capacity: Number(e.target.value) }))} /></Grid>
+                <Grid container spacing={2} mb={2} alignItems="center">
+                    <Grid item xs={3}>
+                        <TextField
+                            label="Вместимость"
+                            type="number"
+                            fullWidth
+                            value={newRack.capacity}
+                            onChange={(e) =>
+                                setNewRack((prev) => ({ ...prev, capacity: Number(e.target.value) }))
+                            }
+                        />
+                    </Grid>
                     <Grid item xs={9}>
-                        <Typography variant="subtitle1">Добавить ячейку:</Typography>
+                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                            Добавить ячейку:
+                        </Typography>
                         <Grid container spacing={2}>
-                            <Grid item xs={4}><TextField label="Длина" type="number" fullWidth value={newCell.length} onChange={(e) => setNewCell((prev) => ({ ...prev, length: Number(e.target.value) }))} /></Grid>
-                            <Grid item xs={4}><TextField label="Ширина" type="number" fullWidth value={newCell.width} onChange={(e) => setNewCell((prev) => ({ ...prev, width: Number(e.target.value) }))} /></Grid>
-                            <Grid item xs={4}><TextField label="Высота" type="number" fullWidth value={newCell.height} onChange={(e) => setNewCell((prev) => ({ ...prev, height: Number(e.target.value) }))} /></Grid>
-                            <Grid item xs={12}><Button variant="outlined" onClick={handleAddCell}>Добавить ячейку</Button></Grid>
+                            <Grid item xs={4}>
+                                <TextField
+                                    label="Длина"
+                                    type="number"
+                                    fullWidth
+                                    value={newCell.length}
+                                    onChange={(e) =>
+                                        setNewCell((prev) => ({ ...prev, length: Number(e.target.value) }))
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <TextField
+                                    label="Ширина"
+                                    type="number"
+                                    fullWidth
+                                    value={newCell.width}
+                                    onChange={(e) =>
+                                        setNewCell((prev) => ({ ...prev, width: Number(e.target.value) }))
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <TextField
+                                    label="Высота"
+                                    type="number"
+                                    fullWidth
+                                    value={newCell.height}
+                                    onChange={(e) =>
+                                        setNewCell((prev) => ({ ...prev, height: Number(e.target.value) }))
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button variant="outlined" onClick={handleAddCell}>
+                                    Добавить ячейку
+                                </Button>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
-
-                <Typography variant="body1">Текущие ячейки:</Typography>
-                {newRack.cells.map((cell, i) => (
-                    <Typography key={i} variant="body2">
-                        Ячейка {i + 1}: {cell.length} x {cell.width} x {cell.height}
-                    </Typography>
-                ))}
 
                 <Button variant="contained" onClick={handleAddRack} sx={{ mt: 2 }}>Добавить стеллаж</Button>
                 <Button variant="contained" color="primary" sx={{ mt: 4, ml: 2 }} onClick={handleCreateWarehouse} disabled={isSubmitting}>Добавить склад</Button>
