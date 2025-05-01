@@ -103,11 +103,8 @@ const RegisterPopup = ({ open, onClose }) => {
             role === Roles.DIRECTOR ? registerDirectorData : registerUserData;
 
         try {
-            const response = await dispatch(getRegisterAction(role)(signUpData)).unwrap();
-            localStorage.setItem("jwtToken", response.accessToken);
-            localStorage.setItem("refresh", response.refreshToken);
-            localStorage.setItem("role", signUpData.title);
-
+            await dispatch(getRegisterAction(role)(signUpData)).unwrap();
+            localStorage.setItem("role", signUpData?.title);
             toast.success("Регистрация прошла успешно!");
             navigate("/home");
             onClose();

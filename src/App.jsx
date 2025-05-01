@@ -29,8 +29,8 @@ function App() {
                     <Route path="/" element={<WelcomePage />} />
                     <Route path="/home" element={<ProtectedRoute allowedRoles={["worker", "director", "accountant"]}><MainPage /></ProtectedRoute>} />
 
-                    <Route path="/take" element={<ProtectedRoute allowedRoles={("worker")}><TakePage /></ProtectedRoute>} />
-                    <Route path="/take/take-goods" element={<ProtectedRoute allowedRoles={("worker")}><TakeGoods /></ProtectedRoute>} />
+                    <Route path="/take" element={<ProtectedRoute allowedRoles={["worker"]}><TakePage /></ProtectedRoute>} />
+                    <Route path="/take/take-goods" element={<ProtectedRoute allowedRoles={["worker"]}><TakeGoods /></ProtectedRoute>} />
                     <Route path="/send" element={<ProtectedRoute allowedRoles={("worker")}><SendPage /></ProtectedRoute>} />
                     <Route path="/send/send-goods" element={<ProtectedRoute allowedRoles={("worker")}><SendGoods /></ProtectedRoute>} />
 

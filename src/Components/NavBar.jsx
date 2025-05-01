@@ -34,7 +34,7 @@ export default function NavBar() {
     const isMobile = useMediaQuery('(max-width:950px)');
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const role = JSON.parse(localStorage.getItem("user"))?.role;
+    const role = localStorage.getItem("role");
 
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -67,62 +67,44 @@ export default function NavBar() {
             icon: <HomeIcon className="icon" />,
             label: "Получить",
             path: "/take",
-            allowedRoles: ["ROLE_WORKER"],
+            allowedRoles: ["worker"],
         },
         {
             icon: <CheckIcon className="icon" />,
             label: "Отправить",
             path: "/send",
-            allowedRoles: ["ROLE_WORKER"],
+            allowedRoles: ["worker"],
         },
         {
             icon: <LocalShippingIcon className="icon" />,
             label: "Инвентаризация",
             path: "/inventory",
-            allowedRoles: ["ROLE_ACCOUNTANT"],
+            allowedRoles: ["accountant"],
         },
         {
             icon: <InventoryIcon className="icon" />,
             label: "Списать",
             path: "/writeoff",
-            allowedRoles: ["ROLE_ACCOUNTANT"],
+            allowedRoles: ["accountant"],
         },
         {
             icon: <DeleteIcon className="icon" />,
             label: "Переоценка",
             path: "/revaluation",
-            allowedRoles: ["ROLE_ACCOUNTANT"],
+            allowedRoles: ["accountant"],
         },
         {
             icon: <ListAltIcon className="icon" />,
             label: "Склад",
             path: "/warehouse",
-            allowedRoles: ["ROLE_DIRECTOR"],
+            allowedRoles: ["director"],
         },
         {
             icon: <AssessmentIcon className="icon" />,
             label: "Отчёт",
             path: "/report",
-            allowedRoles: ["ROLE_DIRECTOR"],
-        },
-        {
-            icon: <BusinessIcon className="icon" />,
-            label: "Поставщик",
-            path: "/supplier",
-            allowedRoles: ["ROLE_MANAGER"],
-        },
-        {
-            icon: <OrderIcon className="icon" />,
-            label: "Заказ",
-            path: "/order",
-            allowedRoles: ["ROLE_MANAGER"],
-        },
-        {
-            icon: <TrendingUpIcon className="icon" />,
-            label: "Прогноз",
-            path: "/forecast",
-            allowedRoles: ["ROLE_MANAGER"],
-        },
+            allowedRoles: ["director"],
+        }
     ];
 
     return (

@@ -18,6 +18,8 @@ const registerUser = async (params, rejectWithValue, userType) => {
         }
 
         const data = response.data.data;
+        localStorage.setItem("jwtToken", data?.accessToken);
+        localStorage.setItem("refresh", data?.refreshToken);
 
         return data;
     } catch (error) {
@@ -51,7 +53,10 @@ export const fetchLoginData = createAsyncThunk(
             }
 
             const data = response.data.data;
-            localStorage.setItem("user", JSON.stringify(data));
+            localStorage.setItem("jwtToken", data.accessToken);
+            localStorage.setItem("refresh", data.refreshToken);
+            localStorage.setItem("role", data.user?.title);
+            localStorage.setItem("id", data.user?.organizationId);
 
             return data;
         } catch (error) {

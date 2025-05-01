@@ -26,6 +26,7 @@ const WarehousePage = () => {
     const [newWarehouse, setNewWarehouse] = useState({
         name: "",
         address: "",
+        organizationId: localStorage.getItem("id"),
         racks: [],
     });
     const [newRack, setNewRack] = useState({
@@ -38,24 +39,50 @@ const WarehousePage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        fetchOrganization();
+        if(localStorage.getItem("id")) {
+            fetchOrganization();
+        }
         fetchWarehouses();
     }, []);
 
+    console.log(newWarehouse)
+
     const fetchOrganization = async () => {
+        const id = localStorage.getItem("id");
         try {
-            const token = localStorage.getItem("jwtToken");
-            const response = await axios.get("http://localhost:8080/api/v1/director/organization", {
-                headers: { Authorization: `Bearer ${token}` },
+            const response = await axios.get(`http://localhost:8765/organization-service/api/organization/id?id=${id}`, {
+                headers: { id },
             });
 
-            if (response.data.status && response.data.data) {
-                setOrganization([response.data.data]);
+            if (response?.data) {
+                setOrganization([response.data]);
             } else {
                 toast.error("Ошибка загрузки данных организации.");
             }
         } catch (error) {
             toast.error("Ошибка сервера при загрузке данных.");
+        }
+    };
+
+    const handleCreateOrganization = async () => {
+        if (!newOrganization.name || !newOrganization.inn || !newOrganization.address) {
+            toast.error("Заполните все поля.");
+            return;
+        }
+        try {
+            setIsSubmitting(true);
+            const token = localStorage.getItem("jwtToken");
+            const response = await axios.post("http://localhost:8765/organization-service/api/organization", newOrganization, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            localStorage.setItem("id", response?.data?.id);
+            toast.success("Организация успешно создана!");
+            setNewOrganization({ name: "", inn: "", address: "" });
+            await fetchOrganization();
+        } catch (error) {
+            toast.error("Ошибка при создании организации.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -73,6 +100,32 @@ const WarehousePage = () => {
             }
         } catch (error) {
             toast.error("Ошибка сервера при загрузке данных.");
+        }
+    };
+
+    const handleCreateWarehouse = async () => {
+        if (!newWarehouse.name || !newWarehouse.address || newWarehouse.racks.length === 0) {
+            toast.error("Заполните все поля склада.");
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            const token = localStorage.getItem("jwtToken");
+            await axios.post("http://localhost:8765/warehouse-service/api/warehouse", newWarehouse, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            toast.success("Склад успешно создан!");
+            setNewWarehouse({
+                name: "",
+                address: "",
+                racks: [],
+            });
+            fetchWarehouses();
+        } catch (error) {
+            toast.error("Ошибка при создании склада.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -96,49 +149,7 @@ const WarehousePage = () => {
         });
     };
 
-    const handleCreateWarehouse = async () => {
-        if (!newWarehouse.name || !newWarehouse.address || newWarehouse.racks.length === 0) {
-            toast.error("Заполните все поля склада.");
-            return;
-        }
 
-        try {
-            setIsSubmitting(true);
-            const token = localStorage.getItem("jwtToken");
-            await axios.post("http://localhost:8080/api/v1/director/organization/warehouse", newWarehouse, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            toast.success("Склад успешно создан!");
-            setNewWarehouse({
-                name: "",
-                address: "",
-                racks: [],
-            });
-            fetchWarehouses();
-        } catch (error) {
-            toast.error("Ошибка при создании склада.");
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-    const handleCreateOrganization = async () => {
-        if (!newOrganization.name || !newOrganization.inn || !newOrganization.address) {
-            toast.error("Заполните все поля.");
-            return;
-        }
-        try {
-            setIsSubmitting(true);
-            const token = localStorage.getItem("jwtToken");
-            await axios.post("http://localhost:8080/api/v1/director/organization", newOrganization, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            toast.success("Организация успешно создана!");
-            setNewOrganization({ name: "", inn: "", address: "" });
-            fetchOrganization();        } catch (error) {
-            toast.error("Ошибка при создании организации.");
-        } finally {
-            setIsSubmitting(false);
-        }    };
 
     const organizationColumns = [
         { field: "id", headerName: "ID", flex: 0.5 },
