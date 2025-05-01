@@ -27,23 +27,19 @@ function App() {
                 <ToastContainer position="top-right" autoClose={3000} />
                 <Routes>
                     <Route path="/" element={<WelcomePage />} />
-                    <Route path="/home" element={<ProtectedRoute allowedRoles={["ROLE_WORKER", "ROLE_DIRECTOR", "ROLE_ACCOUNTANT", "ROLE_MANAGER"]}><MainPage /></ProtectedRoute>} />
+                    <Route path="/home" element={<ProtectedRoute allowedRoles={["worker", "director", "accountant"]}><MainPage /></ProtectedRoute>} />
 
-                    <Route path="/take" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakePage /></ProtectedRoute>} />
-                    <Route path="/take/take-goods" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><TakeGoods /></ProtectedRoute>} />
-                    <Route path="/send" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><SendPage /></ProtectedRoute>} />
-                    <Route path="/send/send-goods" element={<ProtectedRoute allowedRoles={("ROLE_WORKER")}><SendGoods /></ProtectedRoute>} />
+                    <Route path="/take" element={<ProtectedRoute allowedRoles={("worker")}><TakePage /></ProtectedRoute>} />
+                    <Route path="/take/take-goods" element={<ProtectedRoute allowedRoles={("worker")}><TakeGoods /></ProtectedRoute>} />
+                    <Route path="/send" element={<ProtectedRoute allowedRoles={("worker")}><SendPage /></ProtectedRoute>} />
+                    <Route path="/send/send-goods" element={<ProtectedRoute allowedRoles={("worker")}><SendGoods /></ProtectedRoute>} />
 
-                    <Route path="/writeoff" element={<ProtectedRoute allowedRoles={("ROLE_ACCOUNTANT")}><WriteOffPage /></ProtectedRoute>} />
-                    <Route path="/inventory" element={<ProtectedRoute allowedRoles={("ROLE_ACCOUNTANT")}><InventoryPage /></ProtectedRoute>} />
-                    <Route path="/revaluation" element={<ProtectedRoute allowedRoles={("ROLE_ACCOUNTANT")}><RevaluationPage /></ProtectedRoute>} />
+                    <Route path="/writeoff" element={<ProtectedRoute allowedRoles={("accountant")}><WriteOffPage /></ProtectedRoute>} />
+                    <Route path="/inventory" element={<ProtectedRoute allowedRoles={("accountant")}><InventoryPage /></ProtectedRoute>} />
+                    <Route path="/revaluation" element={<ProtectedRoute allowedRoles={("accountant")}><RevaluationPage /></ProtectedRoute>} />
 
-                    <Route path="/warehouse" element={<ProtectedRoute allowedRoles={("ROLE_DIRECTOR")}> <WarehousePage /></ProtectedRoute>} />
-                    <Route path="/report" element={<ProtectedRoute allowedRoles={("ROLE_DIRECTOR")}><ReportsPage /></ProtectedRoute>} />
-
-                    <Route path="/supplier" element={<ProtectedRoute allowedRoles={("ROLE_MANAGER")}><SuppliersPage /></ProtectedRoute>} />
-                    <Route path="/order" element={<ProtectedRoute allowedRoles={("ROLE_MANAGER")}><OrdersPage /></ProtectedRoute>} />
-                    <Route path="/forecast" element={<ProtectedRoute allowedRoles={("ROLE_MANAGER")}><ForecastPage /></ProtectedRoute>} />
+                    <Route path="/warehouse" element={<ProtectedRoute allowedRoles={("director")}> <WarehousePage /></ProtectedRoute>} />
+                    <Route path="/report" element={<ProtectedRoute allowedRoles={("director")}><ReportsPage /></ProtectedRoute>} />
 
                     <Route path="*" element={<ErrorPage/>} />
                 </Routes>

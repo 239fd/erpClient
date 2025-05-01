@@ -10,7 +10,6 @@ const registerUser = async (params, rejectWithValue, userType) => {
         }
 
         const data = response.data.data;
-        localStorage.setItem("user", JSON.stringify(data));
 
         return data;
     } catch (error) {
