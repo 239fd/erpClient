@@ -278,6 +278,14 @@ const WarehousePage = () => {
                     </Grid>
                 </Grid>
 
+                <Typography variant="body1">Текущие ячейки:</Typography>
+                {newRack.cells.map((cell, i) => (
+                    <Typography key={i} variant="body2">
+                        Ячейка {i + 1}: {cell.length} x {cell.width} x {cell.height}
+                    </Typography>
+                ))}
+
+
                 <Button variant="contained" onClick={handleAddRack} sx={{ mt: 4, ml: 2 }}>Добавить стеллаж</Button>
                 <Button variant="contained" color="primary" sx={{ mt: 4, ml: 2 }} onClick={handleCreateWarehouse} disabled={isSubmitting}>Добавить склад</Button>
             </Box>
