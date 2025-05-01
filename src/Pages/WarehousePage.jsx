@@ -5,10 +5,6 @@ import {
     TextField,
     Grid,
     Typography,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
@@ -31,21 +27,21 @@ const WarehousePage = () => {
     });
     const [newRack, setNewRack] = useState({
         capacity: 0,
-        cellCount: 0,
-        cellHeight: 1.0,
-        cellWidth: 1.0,
-        cellLength: 1.0,
+        cells: [],
+    });
+    const [newCell, setNewCell] = useState({
+        length: 1.0,
+        width: 1.0,
+        height: 1.0,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        if(localStorage.getItem("id")) {
+        if (localStorage.getItem("id")) {
             fetchOrganization();
         }
         fetchWarehouses();
     }, []);
-
-    console.log(newWarehouse)
 
     const fetchOrganization = async () => {
         const id = localStorage.getItem("id");
@@ -103,6 +99,41 @@ const WarehousePage = () => {
         }
     };
 
+    const handleAddCell = () => {
+        if (!newCell.length || !newCell.width || !newCell.height) {
+            toast.error("Заполните все размеры ячейки.");
+            return;
+        }
+
+        setNewRack((prev) => ({
+            ...prev,
+            cells: [...prev.cells, newCell],
+        }));
+
+        setNewCell({
+            length: 1.0,
+            width: 1.0,
+            height: 1.0,
+        });
+    };
+
+    const handleAddRack = () => {
+        if (!newRack.capacity || newRack.cells.length === 0) {
+            toast.error("Заполните все поля для стеллажа и добавьте хотя бы одну ячейку.");
+            return;
+        }
+
+        setNewWarehouse((prev) => ({
+            ...prev,
+            racks: [...prev.racks, newRack],
+        }));
+
+        setNewRack({
+            capacity: 0,
+            cells: [],
+        });
+    };
+
     const handleCreateWarehouse = async () => {
         if (!newWarehouse.name || !newWarehouse.address || newWarehouse.racks.length === 0) {
             toast.error("Заполните все поля склада.");
@@ -119,6 +150,7 @@ const WarehousePage = () => {
             setNewWarehouse({
                 name: "",
                 address: "",
+                organizationId: localStorage.getItem("id"),
                 racks: [],
             });
             fetchWarehouses();
@@ -128,28 +160,6 @@ const WarehousePage = () => {
             setIsSubmitting(false);
         }
     };
-
-    const handleAddRack = () => {
-        if (!newRack.capacity || !newRack.cellCount) {
-            toast.error("Заполните все поля для стеллажа.");
-            return;
-        }
-
-        setNewWarehouse((prev) => ({
-            ...prev,
-            racks: [...prev.racks, newRack],
-        }));
-
-        setNewRack({
-            capacity: 0,
-            cellCount: 0,
-            cellHeight: 1.0,
-            cellWidth: 1.0,
-            cellLength: 1.0,
-        });
-    };
-
-
 
     const organizationColumns = [
         { field: "id", headerName: "ID", flex: 0.5 },
@@ -166,214 +176,68 @@ const WarehousePage = () => {
             field: "racks",
             headerName: "Количество стоек",
             flex: 1,
-            valueGetter: (params) => {
-                if (!params || !params.row || !params.row.racks) {
-                    return 0;
-                }
-                return params.row.racks.length;
-            },
-        },
-        {
-            field: "actions",
-            headerName: "Действия",
-            flex: 1,
-            renderCell: (params) => (
-                <>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => {
-                            // Логика редактирования склада
-                        }}
-                    >
-                        Редактировать
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        color="error"
-                        onClick={() => {
-                            // Логика удаления склада
-                        }}
-                        sx={{ ml: 1 }}
-                    >
-                        Удалить
-                    </Button>
-                </>
-            ),
+            valueGetter: (params) => params.row?.racks?.length || 0,
         },
     ];
-
-    const organizationRows = organization.map((org, index) => ({
-        id: org.inn || index,
-        ...org,
-    }));
-
-    const warehouseRows = warehouses.map((warehouse, index) => ({
-        id: warehouse.id || index,
-        ...warehouse,
-    }));
 
     return (
         <div>
             <NavBar />
             <Box sx={{ padding: "16px" }}>
-                <Typography variant="h4" mb={2}>
-                    Управление организацией
-                </Typography>
+                <Typography variant="h4" mb={2}>Управление организацией</Typography>
                 <Box sx={{ height: 300, mb: 4 }}>
                     <DataGrid
-                        rows={organizationRows}
+                        rows={organization.map((org, i) => ({ id: org.inn || i, ...org }))}
                         columns={organizationColumns}
                         pageSize={5}
-                        rowsPerPageOptions={[5, 10]}
                     />
                 </Box>
-                <Typography variant="h5" mb={2}>
-                    Добавить организацию
-                </Typography>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
-                        <TextField
-                            label="Название"
-                            value={newOrganization.name}
-                            onChange={(e) =>
-                                setNewOrganization({ ...newOrganization, name: e.target.value })
-                            }
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <TextField
-                            label="ИНН"
-                            value={newOrganization.inn}
-                            onChange={(e) =>
-                                setNewOrganization({ ...newOrganization, inn: e.target.value })
-                            }
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <TextField
-                            label="Адрес"
-                            value={newOrganization.address}
-                            onChange={(e) =>
-                                setNewOrganization({ ...newOrganization, address: e.target.value })
-                            }
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleCreateOrganization}
-                            disabled={isSubmitting}
-                        >
-                            Добавить организацию
-                        </Button>
-                    </Grid>
+                <Typography variant="h5" mb={2}>Добавить организацию</Typography>
+                <Grid container spacing={2} mb={4}>
+                    <Grid item xs={4}><TextField label="Название" fullWidth value={newOrganization.name} onChange={(e) => setNewOrganization({ ...newOrganization, name: e.target.value })} /></Grid>
+                    <Grid item xs={4}><TextField label="ИНН" fullWidth value={newOrganization.inn} onChange={(e) => setNewOrganization({ ...newOrganization, inn: e.target.value })} /></Grid>
+                    <Grid item xs={4}><TextField label="Адрес" fullWidth value={newOrganization.address} onChange={(e) => setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
+                    <Grid item xs={12}><Button variant="contained" onClick={handleCreateOrganization} disabled={isSubmitting}>Добавить организацию</Button></Grid>
                 </Grid>
-                <Typography variant="h4" mt={4} mb={2}>
-                    Управление складами
-                </Typography>
+
+                <Typography variant="h4" mb={2}>Управление складами</Typography>
                 <Box sx={{ height: 300, mb: 4 }}>
                     <DataGrid
-                        rows={warehouseRows}
+                        rows={warehouses.map((wh, i) => ({ id: wh.id || i, ...wh }))}
                         columns={warehouseColumns}
                         pageSize={5}
-                        rowsPerPageOptions={[5, 10]}
                     />
                 </Box>
-                <Typography variant="h5" mb={2}>
-                    Добавить склад
-                </Typography>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            label="Название склада"
-                            value={newWarehouse.name}
-                            onChange={(e) =>
-                                setNewWarehouse({ ...newWarehouse, name: e.target.value })
-                            }
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            label="Адрес склада"
-                            value={newWarehouse.address}
-                            onChange={(e) =>
-                                setNewWarehouse({ ...newWarehouse, address: e.target.value })
-                            }
-                            fullWidth
-                        />
+
+                <Typography variant="h5" mb={2}>Добавить склад</Typography>
+                <Grid container spacing={2} mb={2}>
+                    <Grid item xs={6}><TextField label="Название склада" fullWidth value={newWarehouse.name} onChange={(e) => setNewWarehouse({ ...newWarehouse, name: e.target.value })} /></Grid>
+                    <Grid item xs={6}><TextField label="Адрес склада" fullWidth value={newWarehouse.address} onChange={(e) => setNewWarehouse({ ...newWarehouse, address: e.target.value })} /></Grid>
+                </Grid>
+
+                <Typography variant="h6" mt={4} mb={2}>Добавить стеллаж</Typography>
+                <Grid container spacing={2} mb={2}>
+                    <Grid item xs={3}><TextField label="Вместимость" type="number" fullWidth value={newRack.capacity} onChange={(e) => setNewRack((prev) => ({ ...prev, capacity: Number(e.target.value) }))} /></Grid>
+                    <Grid item xs={9}>
+                        <Typography variant="subtitle1">Добавить ячейку:</Typography>
+                        <Grid container spacing={2}>
+                            <Grid item xs={4}><TextField label="Длина" type="number" fullWidth value={newCell.length} onChange={(e) => setNewCell((prev) => ({ ...prev, length: Number(e.target.value) }))} /></Grid>
+                            <Grid item xs={4}><TextField label="Ширина" type="number" fullWidth value={newCell.width} onChange={(e) => setNewCell((prev) => ({ ...prev, width: Number(e.target.value) }))} /></Grid>
+                            <Grid item xs={4}><TextField label="Высота" type="number" fullWidth value={newCell.height} onChange={(e) => setNewCell((prev) => ({ ...prev, height: Number(e.target.value) }))} /></Grid>
+                            <Grid item xs={12}><Button variant="outlined" onClick={handleAddCell}>Добавить ячейку</Button></Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
-                <Typography variant="h6" mt={4} mb={2}>
-                    Добавить стеллаж
-                </Typography>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={2}>
-                        <TextField
-                            label="Вместимость"
-                            type="number"
-                            value={newRack.capacity}
-                            onChange={(e) => setNewRack((prev) => ({ ...prev, capacity: e.target.value }))}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={2}>
-                        <TextField
-                            label="Кол-во ячеек"
-                            type="number"
-                            value={newRack.cellCount}
-                            onChange={(e) => setNewRack((prev) => ({ ...prev, cellCount: e.target.value }))}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={2}>
-                        <TextField
-                            label="Высота ячейки"
-                            type="number"
-                            value={newRack.cellHeight}
-                            onChange={(e) => setNewRack((prev) => ({ ...prev, cellHeight: e.target.value }))}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={2}>
-                        <TextField
-                            label="Ширина ячейки"
-                            type="number"
-                            value={newRack.cellWidth}
-                            onChange={(e) => setNewRack((prev) => ({ ...prev, cellWidth: e.target.value }))}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={2}>
-                        <TextField
-                            label="Длина ячейки"
-                            type="number"
-                            value={newRack.cellLength}
-                            onChange={(e) => setNewRack((prev) => ({ ...prev, cellLength: e.target.value }))}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={2}>
-                        <Button variant="contained" onClick={handleAddRack}>
-                            Добавить стеллаж
-                        </Button>
-                    </Grid>
-                </Grid>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 4 }}
-                    onClick={handleCreateWarehouse}
-                    disabled={isSubmitting}
-                >
-                    Добавить склад
-                </Button>
+
+                <Typography variant="body1">Текущие ячейки:</Typography>
+                {newRack.cells.map((cell, i) => (
+                    <Typography key={i} variant="body2">
+                        Ячейка {i + 1}: {cell.length} x {cell.width} x {cell.height}
+                    </Typography>
+                ))}
+
+                <Button variant="contained" onClick={handleAddRack} sx={{ mt: 2 }}>Добавить стеллаж</Button>
+                <Button variant="contained" color="primary" sx={{ mt: 4, ml: 2 }} onClick={handleCreateWarehouse} disabled={isSubmitting}>Добавить склад</Button>
             </Box>
         </div>
     );
