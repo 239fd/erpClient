@@ -44,10 +44,9 @@ function formReducer(state, action) {
 }
 
 const Roles = {
-    WORKER: "ROLE_WORKER",
-    ACCOUNTANT: "ROLE_ACCOUNTANT",
-    MANAGER: "ROLE_MANAGER",
-    DIRECTOR: "ROLE_DIRECTOR"
+    WORKER: "worker",
+    ACCOUNTANT: "accountant",
+    DIRECTOR: "director"
 };
 
 const RegisterPopup = ({ open, onClose }) => {
@@ -83,16 +82,22 @@ const RegisterPopup = ({ open, onClose }) => {
             return;
         }
 
-        const signUpData = {
+        const signUpData = isNewOrganization ? {
             login: username,
             password,
-            phone,
-            role,
             firstName,
+            phone,
             secondName,
-            surname,
-            organizationId: isNewOrganization ? '' : organizationNumber,
-        };
+            title: role,
+        } : {
+            login: username,
+                password,
+                firstName,
+                phone,
+                secondName,
+                title: role,
+            code: organizationNumber,
+        }
 
         const getRegisterAction = (role) =>
             role === Roles.DIRECTOR ? registerDirectorData : registerUserData;
@@ -151,7 +156,6 @@ const RegisterPopup = ({ open, onClose }) => {
                     <Select value={form.role} onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "role", value: e.target.value })}>
                         <MenuItem value={Roles.WORKER}>Рабочий</MenuItem>
                         <MenuItem value={Roles.ACCOUNTANT}>Бухгалтер</MenuItem>
-                        <MenuItem value={Roles.MANAGER}>Менеджер</MenuItem>
                         <MenuItem value={Roles.DIRECTOR}>Директор</MenuItem>
                     </Select>
                 </FormControl>
