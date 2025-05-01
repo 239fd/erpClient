@@ -4,10 +4,7 @@ import { toast } from "react-toastify";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const token = localStorage.getItem("jwtToken");
-    const user = localStorage.getItem("user");
-
-    const parsedUser = JSON.parse(user);
-    const role = parsedUser?.role;
+    const role = localStorage.getItem("role");
 
     if (!token) {
         toast.error("Вы не авторизованы. Пожалуйста, войдите в систему.");
