@@ -97,7 +97,7 @@ const TakeGoods = () => {
         try {
             const token = localStorage.getItem("jwtToken");
             const response = await axios.post(
-                "http://localhost:8080/api/v1/worker/receive",
+                "http://localhost:8765/product-service/api/product/accept",
                 goodsData,
                 {
                     headers: {
@@ -107,12 +107,11 @@ const TakeGoods = () => {
                 }
             );
 
-            const blob = new Blob([response.data], { type: "application/pdf" });
+            const blob = new Blob([response.data], { type: "application/zip" });
             const link = document.createElement("a");
             link.href = window.URL.createObjectURL(blob);
-            link.download = "receipt_order.pdf";
+            link.download = "acceptance_package.zip";
             link.click();
-
             toast.success("Товары успешно приняты!");
             setGoodsData([]);
             setActiveStep(0);

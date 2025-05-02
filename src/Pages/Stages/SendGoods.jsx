@@ -7,7 +7,7 @@ import {
     List,
     ListItem,
     ListItemText,
-    IconButton,
+    IconButton, FormControl, Select, InputLabel, MenuItem,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import NavBar from "../../Components/NavBar";
@@ -19,15 +19,12 @@ const SendGoods = () => {
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [currentProduct, setCurrentProduct] = useState({ id: "", amount: "" });
     const [deliveryInfo, setDeliveryInfo] = useState({
-        vehicle: "",
-        driverName: "",
-        deliveryAddress: "",
-        organizationName: "",
-        organizationAddress: "",
         customerName: "",
+        customerUnp: "",
         customerAddress: "",
-        documentNumber: "",
-        documentDate: "",
+        driverFullName: "",
+        carNumber: "",
+        documentType: "",
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,7 +55,7 @@ const SendGoods = () => {
             };
 
             const response = await axios.post(
-                "http://localhost:8080/api/v1/worker/dispatch",
+                "http://localhost:8765/product-service/api/product/dispatch",
                 requestBody,
                 {
                     headers: {
@@ -152,61 +149,21 @@ const SendGoods = () => {
                             Данные доставки
                         </Typography>
                         <TextField
-                            label="Транспортное средство"
-                            value={deliveryInfo.vehicle}
+                            label="Название организации"
+                            value={deliveryInfo.customerName}
                             onChange={(e) =>
-                                setDeliveryInfo({ ...deliveryInfo, vehicle: e.target.value })
+                                setDeliveryInfo({ ...deliveryInfo, customerName: e.target.value })
                             }
                         />
                         <TextField
-                            label="Имя водителя"
-                            value={deliveryInfo.driverName}
+                            label="УНП Организации"
+                            value={deliveryInfo.customerUnp}
                             onChange={(e) =>
-                                setDeliveryInfo({ ...deliveryInfo, driverName: e.target.value })
+                                setDeliveryInfo({ ...deliveryInfo, customerUnp: e.target.value })
                             }
                         />
                         <TextField
                             label="Адрес доставки"
-                            value={deliveryInfo.deliveryAddress}
-                            onChange={(e) =>
-                                setDeliveryInfo({
-                                    ...deliveryInfo,
-                                    deliveryAddress: e.target.value,
-                                })
-                            }
-                        />
-                        <TextField
-                            label="Название организации"
-                            value={deliveryInfo.organizationName}
-                            onChange={(e) =>
-                                setDeliveryInfo({
-                                    ...deliveryInfo,
-                                    organizationName: e.target.value,
-                                })
-                            }
-                        />
-                        <TextField
-                            label="Адрес организации"
-                            value={deliveryInfo.organizationAddress}
-                            onChange={(e) =>
-                                setDeliveryInfo({
-                                    ...deliveryInfo,
-                                    organizationAddress: e.target.value,
-                                })
-                            }
-                        />
-                        <TextField
-                            label="Название клиента"
-                            value={deliveryInfo.customerName}
-                            onChange={(e) =>
-                                setDeliveryInfo({
-                                    ...deliveryInfo,
-                                    customerName: e.target.value,
-                                })
-                            }
-                        />
-                        <TextField
-                            label="Адрес клиента"
                             value={deliveryInfo.customerAddress}
                             onChange={(e) =>
                                 setDeliveryInfo({
@@ -216,27 +173,42 @@ const SendGoods = () => {
                             }
                         />
                         <TextField
-                            label="Номер документа"
-                            value={deliveryInfo.documentNumber}
+                            label="ФИО Водителя"
+                            value={deliveryInfo.driverFullName}
                             onChange={(e) =>
                                 setDeliveryInfo({
                                     ...deliveryInfo,
-                                    documentNumber: e.target.value,
+                                    driverFullName: e.target.value,
                                 })
                             }
                         />
                         <TextField
-                            type="date"
-                            label="Дата документа"
-                            InputLabelProps={{ shrink: true }}
-                            value={deliveryInfo.documentDate}
+                            label="Номер Машины"
+                            value={deliveryInfo.carNumber}
                             onChange={(e) =>
                                 setDeliveryInfo({
                                     ...deliveryInfo,
-                                    documentDate: e.target.value,
+                                    carNumber: e.target.value,
                                 })
                             }
                         />
+                        <FormControl fullWidth>
+                            <InputLabel id="document-type-label">Тип Документа</InputLabel>
+                            <Select
+                                labelId="document-type-label"
+                                id="document-type"
+                                value={deliveryInfo.documentType}
+                                onChange={(e) =>
+                                    setDeliveryInfo({
+                                        ...deliveryInfo,
+                                        documentType: e.target.value,
+                                    })
+                                }
+                            >
+                                <MenuItem value="TTN">TTN</MenuItem>
+                                <MenuItem value="TN">TN</MenuItem>
+                            </Select>
+                        </FormControl>
                         <Button
                             variant="contained"
                             color="primary"
@@ -247,7 +219,6 @@ const SendGoods = () => {
                         </Button>
                     </Box>
 
-                    {/* Правая секция */}
                     <Box
                         flex={1}
                         sx={{

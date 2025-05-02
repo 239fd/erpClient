@@ -23,25 +23,25 @@ const DataTable = () => {
                 return;
             }
 
-            const response = await axios.get('http://localhost:8080/api/v1/worker', {
+            const response = await axios.get('http://localhost:8765/product-service/api/product/all', {
                 headers: {
-                    Authorization: `Bearer ${token}`, // Передаем токен в заголовке
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
-            if (response.data.status) {
-                const transformedData = response.data.data.map((product, index) => ({
-                    id: index + 1,
+            if (response.data) {
+                const transformedData = response.data.map((product, index) => ({
+                    id: product.id,
                     name: product.name,
                     amount: product.amount,
                     bestBeforeDate: product.bestBeforeDate,
                 }));
                 setRows(transformedData);
             } else {
-                toast.error('Ошибка при получении данных с сервера');
+                toast.success('На данный момент товаров нет');
             }
         } catch (error) {
-            if (error.response && error.response.status === 401) {
+            if (error.response === 'Invalid token') {
                 toast.error('Сессия истекла. Войдите заново.');
                 localStorage.clear();
                 window.location.href = '/';
