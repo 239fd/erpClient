@@ -10,9 +10,10 @@ import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { toast } from "react-toastify";
 import NavBar from "../Components/NavBar";
+import {useNavigate} from "react-router-dom";
 
 const WarehousePage = () => {
-    const [organization, setOrganization] = useState([]);
+    const [organization, setOrganization] = useState();
     const [warehouses, setWarehouses] = useState([]);
     const [newOrganization, setNewOrganization] = useState({
         name: "",
@@ -35,15 +36,15 @@ const WarehousePage = () => {
         height: 1.0,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (localStorage.getItem("id")) {
             fetchOrganization();
+            fetchWarehouses();
         }
-        fetchWarehouses();
     }, []);
 
-    console.log(newWarehouse)
 
     const fetchOrganization = async () => {
         const id = localStorage.getItem("id");
@@ -53,7 +54,7 @@ const WarehousePage = () => {
             });
 
             if (response?.data) {
-                setOrganization([response.data]);
+                setOrganization(response.data);
             } else {
                 toast.error("Ошибка загрузки данных организации.");
             }
@@ -84,15 +85,55 @@ const WarehousePage = () => {
         }
     };
 
+    const handleUpdateOrganization = async () => {
+        if (!organization.name || !organization.inn || !organization.address) {
+            toast.error("Заполните все поля.");
+            return;
+        }
+        try {
+            setIsSubmitting(true);
+            const token = localStorage.getItem("jwtToken");
+            const response = await axios.put(`http://localhost:8765/organization-service/api/organization/${organization.inn}`, {
+                name: organization.name,
+                address: organization.address,
+            }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            localStorage.setItem("id", response?.data?.id);
+            toast.success("Организация успешно обновлена!");
+            await fetchOrganization();
+        } catch (error) {
+            toast.error("Ошибка при обновлении организации.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleDeleteOrganization = async () => {
+        try {
+            const token = localStorage.getItem("jwtToken");
+            await axios.delete(`http://localhost:8765/organization-service/api/organization/${organization.inn}`,{
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            toast.success("Организация успешно удалена!");
+            localStorage.clear();
+            setOrganization(null);
+            navigate('/');
+            await fetchOrganization();
+        } catch (error) {
+            toast.error("Ошибка при удалении организации.");
+        }
+    };
+
     const fetchWarehouses = async () => {
         try {
             const token = localStorage.getItem("jwtToken");
-            const response = await axios.get("http://localhost:8080/api/v1/director/organization/warehouses", {
+            const response = await axios.get("http://localhost:8765/warehouse-service/api/warehouse", {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            if (response.data.status && response.data.data) {
-                setWarehouses(response.data.data);
+            if (response.data) {
+                setWarehouses(response.data);
             } else {
                 toast.error("Ошибка загрузки данных складов.");
             }
@@ -163,56 +204,49 @@ const WarehousePage = () => {
         }
     };
 
-    const organizationColumns = [
-        { field: "id", headerName: "ID", flex: 0.5 },
-        { field: "name", headerName: "Название", flex: 1.5 },
-        { field: "inn", headerName: "ИНН", flex: 1 },
-        { field: "address", headerName: "Адрес", flex: 2 },
-    ];
 
     const warehouseColumns = [
         { field: "id", headerName: "ID", flex: 0.5 },
         { field: "name", headerName: "Название", flex: 1.5 },
         { field: "address", headerName: "Адрес", flex: 2 },
         {
-            field: "racks",
+            field: "rackCount",
             headerName: "Количество стоек",
             flex: 1,
-            renderCell: (params) => {
-                const racks = params.row?.racks;
-                return Array.isArray(racks) ? racks.length : 0;
-            },
         },
     ];
+
+
+
 
     return (
         <div>
             <NavBar />
             <Box sx={{ padding: "16px" }}>
-                <Typography variant="h4" mb={2}>Управление организацией</Typography>
-                <Box sx={{ height: 300, mb: 4 }}>
-                    <DataGrid
-                        rows={organization.map((org, i) => ({ id: org.inn || i, ...org }))}
-                        columns={organizationColumns}
-                        pageSize={5}
-                    />
-                </Box>
-                <Typography variant="h5" mb={2}>Добавить организацию</Typography>
+                {organization ? <Typography variant="h4" mb={2}>Управление организацией</Typography> : <Typography variant="h5" mb={2}>Добавить организацию</Typography>}
                 <Grid container spacing={2} mb={4}>
-                    <Grid item xs={4}><TextField label="Название" fullWidth value={newOrganization.name} onChange={(e) => setNewOrganization({ ...newOrganization, name: e.target.value })} /></Grid>
-                    <Grid item xs={4}><TextField label="ИНН" fullWidth value={newOrganization.inn} onChange={(e) => setNewOrganization({ ...newOrganization, inn: e.target.value })} /></Grid>
-                    <Grid item xs={4}><TextField label="Адрес" fullWidth value={newOrganization.address} onChange={(e) => setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
-                    <Grid item xs={12}><Button variant="contained" onClick={handleCreateOrganization} disabled={isSubmitting}>Добавить организацию</Button></Grid>
+                    <Grid item xs={4}><TextField label="Название" fullWidth value={organization ? organization.name : newOrganization.name} onChange={(e) => organization ? setOrganization({ ...organization, name: e.target.value }) : setNewOrganization({ ...newOrganization, name: e.target.value })} /></Grid>
+                    <Grid item xs={4}><TextField label="ИНН" fullWidth value={organization ? organization.inn : newOrganization.inn} disabled={Boolean(organization)} onChange={(e) => setNewOrganization({ ...newOrganization, inn: e.target.value })} /></Grid>
+                    <Grid item xs={4}><TextField label="Адрес" fullWidth value={organization ? organization.address : newOrganization.address} onChange={(e) => organization ? setOrganization({ ...organization, address: e.target.value }) : setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
+                    <Grid item xs={12} gap={20}>
+                        <Button variant="contained" onClick={organization ? handleUpdateOrganization : handleCreateOrganization} disabled={isSubmitting}>{organization ? 'Редактирвоать' : 'Добавить организацию'}</Button>
+                        <Button variant='outlined' color='error' sx={{  ml: 2 }} disabled={!organization} onClick={handleDeleteOrganization}>Удалить организацию</Button>
+                    </Grid>
                 </Grid>
 
                 <Typography variant="h4" mb={2}>Управление складами</Typography>
                 <Box sx={{ height: 300, mb: 4 }}>
                     <DataGrid
-                        rows={warehouses.map((wh, i) => ({ id: wh.id || i, ...wh }))}
+                        rows={warehouses.map((wh, i) => ({
+                            id: wh.id || i,
+                            ...wh,
+                            rackCount: Array.isArray(wh.racks) ? wh.racks.length : 0,
+                        }))}
                         columns={warehouseColumns}
                         pageSize={5}
                     />
                 </Box>
+
 
                 <Typography variant="h5" mb={2}>Добавить склад</Typography>
                 <Grid container spacing={2} mb={2}>
@@ -285,6 +319,18 @@ const WarehousePage = () => {
                 {newRack.cells.map((cell, i) => (
                     <Typography key={i} variant="body2">
                         Ячейка {i + 1}: {cell.length} x {cell.width} x {cell.height}
+                    </Typography>
+                ))}
+
+                <Typography variant="body1">Текущие стеллажи:</Typography>
+                {newWarehouse.racks.map((rack, i) => (
+                    <Typography key={rack + i} variant="body2">
+                        Стеллаж {i + 1}: {
+                        rack.cells.map((cell, i) => (
+                            <Typography key={i} variant="body2">
+                                ячейка {i + 1}: {cell.length} x {cell.width} x {cell.height}
+                            </Typography>
+                        ))}
                     </Typography>
                 ))}
 
