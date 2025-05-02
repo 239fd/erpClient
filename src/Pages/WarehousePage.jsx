@@ -226,7 +226,7 @@ const WarehousePage = () => {
                 {organization ? <Typography variant="h4" mb={2}>Управление организацией</Typography> : <Typography variant="h5" mb={2}>Добавить организацию</Typography>}
                 <Grid container spacing={2} mb={4}>
                     <Grid item xs={4}><TextField label="Название" fullWidth value={organization ? organization.name : newOrganization.name} onChange={(e) => organization ? setOrganization({ ...organization, name: e.target.value }) : setNewOrganization({ ...newOrganization, name: e.target.value })} /></Grid>
-                    <Grid item xs={4}><TextField label="ИНН" fullWidth value={organization ? organization.inn : newOrganization.inn} disabled={Boolean(organization)} onChange={(e) => setNewOrganization({ ...newOrganization, inn: e.target.value })} /></Grid>
+                    <Grid item xs={4}><TextField label="ОНП" fullWidth value={organization ? organization.inn : newOrganization.inn} disabled={Boolean(organization)} onChange={(e) => setNewOrganization({ ...newOrganization, inn: e.target.value })} /></Grid>
                     <Grid item xs={4}><TextField label="Адрес" fullWidth value={organization ? organization.address : newOrganization.address} onChange={(e) => organization ? setOrganization({ ...organization, address: e.target.value }) : setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
                     <Grid item xs={12}>
                         <Button variant="contained" onClick={organization ? handleUpdateOrganization : handleCreateOrganization} disabled={isSubmitting}>
