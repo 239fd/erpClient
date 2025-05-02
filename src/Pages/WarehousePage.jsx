@@ -10,6 +10,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { toast } from "react-toastify";
 import NavBar from "../Components/NavBar";
+import {useNavigate} from "react-router-dom";
 
 const WarehousePage = () => {
     const [organization, setOrganization] = useState();
@@ -35,12 +36,13 @@ const WarehousePage = () => {
         height: 1.0,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (localStorage.getItem("id")) {
             fetchOrganization();
+            fetchWarehouses();
         }
-        fetchWarehouses();
     }, []);
 
 
@@ -114,6 +116,9 @@ const WarehousePage = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             toast.success("Организация успешно удалена!");
+            localStorage.clear();
+            setOrganization(null);
+            navigate('/');
             await fetchOrganization();
         } catch (error) {
             toast.error("Ошибка при удалении организации.");
@@ -212,6 +217,8 @@ const WarehousePage = () => {
     ];
 
 
+
+
     return (
         <div>
             <NavBar />
@@ -223,7 +230,7 @@ const WarehousePage = () => {
                     <Grid item xs={4}><TextField label="Адрес" fullWidth value={organization ? organization.address : newOrganization.address} onChange={(e) => organization ? setOrganization({ ...organization, address: e.target.value }) : setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
                     <Grid item xs={12} gap={20}>
                         <Button variant="contained" onClick={organization ? handleUpdateOrganization : handleCreateOrganization} disabled={isSubmitting}>{organization ? 'Редактирвоать' : 'Добавить организацию'}</Button>
-                        <Button variant='outlined' color='error' sx={{  ml: 2 }} onClick={handleDeleteOrganization}>Удалить организацию</Button>
+                        <Button variant='outlined' color='error' sx={{  ml: 2 }} disabled={!organization} onClick={handleDeleteOrganization}>Удалить организацию</Button>
                     </Grid>
                 </Grid>
 
@@ -239,6 +246,7 @@ const WarehousePage = () => {
                         pageSize={5}
                     />
                 </Box>
+
 
                 <Typography variant="h5" mb={2}>Добавить склад</Typography>
                 <Grid container spacing={2} mb={2}>
