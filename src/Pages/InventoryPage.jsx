@@ -26,15 +26,15 @@ const InventoryPage = () => {
         try {
             const token = localStorage.getItem("jwtToken");
             const response = await axios.get(
-                "http://localhost:8080/api/v1/accountant",
+                "http://localhost:8765/product-service/api/product/all",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 }
             );
-            if (response.data.status) {
-                setProducts(response.data.data);
+            if (response.data) {
+                setProducts(response.data);
             } else {
                 toast.error("Ошибка при загрузке данных.");
             }
@@ -96,7 +96,7 @@ const InventoryPage = () => {
             setIsSubmitting(true);
             const token = localStorage.getItem("jwtToken");
             const response = await axios.post(
-                "http://localhost:8080/api/v1/accountant/inventory",
+                "http://localhost:8765/product-service/api/product/inventory",
                 requestBody,
                 {
                     headers: {

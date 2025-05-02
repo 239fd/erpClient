@@ -17,8 +17,6 @@ import {
 } from '@mui/material';
 import '../Styles/RegisterPopup.css';
 import { toast } from "react-toastify";
-import GoogleSSOButton from "./GoogleSSOButton";
-import YandexSSOButton from "./YandexSSOButton";
 
 const initialFormState = {
     firstName: '',
@@ -186,27 +184,10 @@ const RegisterPopup = ({ open, onClose }) => {
                     onChange={(e) => dispatchForm({ type: "SET_FIELD", field: "phone", value: e.target.value })}
                 />
 
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={form.isNewOrganization}
-                            onChange={(e) =>
-                                dispatchForm({ type: "SET_FIELD", field: "isNewOrganization", value: e.target.checked })
-                            }
-                        />
-                    }
-                    label="Новая организация"
-                />
 
                 <Button variant="contained" color="primary" fullWidth onClick={handleRegister}>
                     Зарегистрироваться
                 </Button>
-
-                <div className="or-divider">или</div>
-                <div className="sso-buttons-container">
-                    <YandexSSOButton />
-                    <GoogleSSOButton />
-                </div>
             </Box>
         </Modal>
     );

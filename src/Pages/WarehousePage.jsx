@@ -28,6 +28,7 @@ const WarehousePage = () => {
     });
     const [newRack, setNewRack] = useState({ capacity: 0, cells: [] });
     const [newCell, setNewCell] = useState({ length: 1.0, width: 1.0, height: 1.0 });
+    const [cellCount, setCellCount] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [selectedWarehouseToDelete, setSelectedWarehouseToDelete] = useState(null);
@@ -70,12 +71,8 @@ const WarehousePage = () => {
             toast.error("Заполните все поля.");
             return;
         }
-        if (
-            !/^\d{9}$/.test(newOrganization.inn) ||
-            !newOrganization.name ||
-            !newOrganization.address
-        ) {
-            toast.error("Проверьте поля. ИНН должен содержать ровно 9 цифр.");
+        if (!/^\d{9}$/.test(newOrganization.inn)) {
+            toast.error("ИНН должен содержать ровно 9 цифр.");
             return;
         }
         try {
@@ -88,6 +85,12 @@ const WarehousePage = () => {
             toast.success("Организация успешно создана!");
             setNewOrganization({ name: "", inn: "", address: "" });
             fetchOrganization();
+            setNewWarehouse({
+                name: "",
+                address: "",
+                organizationId: localStorage.getItem("id"),
+                racks: [],
+            })
         } catch {
             toast.error("Ошибка при создании организации.");
         } finally {
@@ -150,16 +153,19 @@ const WarehousePage = () => {
         }
     };
 
-    const handleAddCell = () => {
-        if (!newCell.length || !newCell.width || !newCell.height) {
-            toast.error("Заполните все размеры ячейки.");
+    const handleAddCells = () => {
+        if (!newCell.length || !newCell.width || !newCell.height || cellCount < 1) {
+            toast.error("Заполните размеры и количество ячеек.");
             return;
         }
+
+        const newCells = Array.from({ length: cellCount }, () => ({ ...newCell }));
         setNewRack((prev) => ({
             ...prev,
-            cells: [...prev.cells, newCell],
+            cells: [...prev.cells, ...newCells],
         }));
         setNewCell({ length: 1.0, width: 1.0, height: 1.0 });
+        setCellCount(1);
     };
 
     const handleAddRack = () => {
@@ -230,6 +236,7 @@ const WarehousePage = () => {
         <div>
             <NavBar />
             <Box sx={{ padding: "16px" }}>
+
                 <Typography variant="h4" mb={2}>
                     {organization ? "Управление организацией" : "Добавить организацию"}
                 </Typography>
@@ -302,67 +309,58 @@ const WarehousePage = () => {
                     </Grid>
                     <Grid item xs={9}>
                         <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                            Добавить ячейку:
+                            Добавить ячейки:
                         </Typography>
-                        <Grid container spacing={2} >
-                            <Grid item xs={4}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={3}>
                                 <TextField
                                     label="Длина"
                                     type="number"
                                     fullWidth
                                     value={newCell.length}
-                                    onChange={(e) =>
-                                        setNewCell((prev) => ({ ...prev, length: Number(e.target.value) }))
-                                    }
+                                    onChange={(e) => setNewCell((prev) => ({ ...prev, length: Number(e.target.value) }))}
                                 />
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid item xs={3}>
                                 <TextField
                                     label="Ширина"
                                     type="number"
                                     fullWidth
                                     value={newCell.width}
-                                    onChange={(e) =>
-                                        setNewCell((prev) => ({ ...prev, width: Number(e.target.value) }))
-                                    }
+                                    onChange={(e) => setNewCell((prev) => ({ ...prev, width: Number(e.target.value) }))}
                                 />
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid item xs={3}>
                                 <TextField
                                     label="Высота"
                                     type="number"
                                     fullWidth
                                     value={newCell.height}
-                                    onChange={(e) =>
-                                        setNewCell((prev) => ({ ...prev, height: Number(e.target.value) }))
-                                    }
+                                    onChange={(e) => setNewCell((prev) => ({ ...prev, height: Number(e.target.value) }))}
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField
+                                    label="Кол-во ячеек"
+                                    type="number"
+                                    fullWidth
+                                    value={cellCount}
+                                    onChange={(e) => setCellCount(Number(e.target.value))}
                                 />
                             </Grid>
                             <Grid item xs={12}>
-                                <Button variant="outlined" onClick={handleAddCell}>
-                                    Добавить ячейку
+                                <Button variant="outlined" onClick={handleAddCells}>
+                                    Добавить ячейки
                                 </Button>
                             </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
 
-                <Typography variant="body1" mt={2}>Текущие ячейки:</Typography>
-                {newRack.cells.map((cell, i) => (
-                    <Typography key={i} variant="body2">
-                        Ячейка {i + 1}: {cell.length} x {cell.width} x {cell.height}
-                    </Typography>
-                ))}
-
                 <Typography variant="body1" mt={2}>Текущие стеллажи:</Typography>
                 {newWarehouse.racks.map((rack, i) => (
                     <Box key={i}>
-                        <Typography variant="body2">Стеллаж {i + 1}:</Typography>
-                        {rack.cells.map((cell, j) => (
-                            <Typography key={j} variant="body2" ml={2}>
-                                Ячейка {j + 1}: {cell.length} x {cell.width} x {cell.height}
-                            </Typography>
-                        ))}
+                        <Typography variant="body2">Стеллаж {i + 1}: Ячеек:{rack.cells.length}</Typography>
                     </Box>
                 ))}
 

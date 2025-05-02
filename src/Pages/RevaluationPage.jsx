@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
     Box,
     Button,
-    Typography,
     TextField,
     Grid,
 } from "@mui/material";
@@ -26,15 +25,15 @@ const RevaluationPage = () => {
         try {
             const token = localStorage.getItem("jwtToken");
             const response = await axios.get(
-                "http://localhost:8080/api/v1/accountant",
+                "http://localhost:8765/product-service/api/product/all",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 }
             );
-            if (response.data.status) {
-                setProducts(response.data.data);
+            if (response.data) {
+                setProducts(response.data);
             } else {
                 toast.error("Ошибка при загрузке данных.");
             }
@@ -95,7 +94,7 @@ const RevaluationPage = () => {
             };
 
             const response = await axios.post(
-                "http://localhost:8080/api/v1/accountant/revaluation",
+                "http://localhost:8765/product-service/api/product/revaluation",
                 requestBody,
                 {
                     headers: {
@@ -110,7 +109,7 @@ const RevaluationPage = () => {
             link.href = window.URL.createObjectURL(blob);
             link.download = "revaluation_act.pdf";
             link.click();
-
+            fetchProducts()
             toast.success("Переоценка выполнена успешно!");
             setSelectedProducts([]);
             setNewPrices("");
