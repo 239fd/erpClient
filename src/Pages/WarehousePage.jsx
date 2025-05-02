@@ -5,12 +5,16 @@ import {
     TextField,
     Grid,
     Typography,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { toast } from "react-toastify";
 import NavBar from "../Components/NavBar";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const WarehousePage = () => {
     const [organization, setOrganization] = useState();
@@ -36,6 +40,7 @@ const WarehousePage = () => {
         height: 1.0,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -44,7 +49,6 @@ const WarehousePage = () => {
             fetchWarehouses();
         }
     }, []);
-
 
     const fetchOrganization = async () => {
         const id = localStorage.getItem("id");
@@ -112,7 +116,7 @@ const WarehousePage = () => {
     const handleDeleteOrganization = async () => {
         try {
             const token = localStorage.getItem("jwtToken");
-            await axios.delete(`http://localhost:8765/organization-service/api/organization/${organization.inn}`,{
+            await axios.delete(`http://localhost:8765/organization-service/api/organization/${organization.inn}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             toast.success("Организация успешно удалена!");
@@ -204,7 +208,6 @@ const WarehousePage = () => {
         }
     };
 
-
     const warehouseColumns = [
         { field: "id", headerName: "ID", flex: 0.5 },
         { field: "name", headerName: "Название", flex: 1.5 },
@@ -216,9 +219,6 @@ const WarehousePage = () => {
         },
     ];
 
-
-
-
     return (
         <div>
             <NavBar />
@@ -228,9 +228,19 @@ const WarehousePage = () => {
                     <Grid item xs={4}><TextField label="Название" fullWidth value={organization ? organization.name : newOrganization.name} onChange={(e) => organization ? setOrganization({ ...organization, name: e.target.value }) : setNewOrganization({ ...newOrganization, name: e.target.value })} /></Grid>
                     <Grid item xs={4}><TextField label="ИНН" fullWidth value={organization ? organization.inn : newOrganization.inn} disabled={Boolean(organization)} onChange={(e) => setNewOrganization({ ...newOrganization, inn: e.target.value })} /></Grid>
                     <Grid item xs={4}><TextField label="Адрес" fullWidth value={organization ? organization.address : newOrganization.address} onChange={(e) => organization ? setOrganization({ ...organization, address: e.target.value }) : setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
-                    <Grid item xs={12} gap={20}>
-                        <Button variant="contained" onClick={organization ? handleUpdateOrganization : handleCreateOrganization} disabled={isSubmitting}>{organization ? 'Редактирвоать' : 'Добавить организацию'}</Button>
-                        <Button variant='outlined' color='error' sx={{  ml: 2 }} disabled={!organization} onClick={handleDeleteOrganization}>Удалить организацию</Button>
+                    <Grid item xs={12}>
+                        <Button variant="contained" onClick={organization ? handleUpdateOrganization : handleCreateOrganization} disabled={isSubmitting}>
+                            {organization ? 'Редактировать' : 'Добавить организацию'}
+                        </Button>
+                        <Button
+                            variant='outlined'
+                            color='error'
+                            sx={{ ml: 2 }}
+                            disabled={!organization}
+                            onClick={() => setConfirmDeleteOpen(true)}
+                        >
+                            Удалить организацию
+                        </Button>
                     </Grid>
                 </Grid>
 
@@ -246,7 +256,6 @@ const WarehousePage = () => {
                         pageSize={5}
                     />
                 </Box>
-
 
                 <Typography variant="h5" mb={2}>Добавить склад</Typography>
                 <Grid container spacing={2} mb={2}>
@@ -324,20 +333,41 @@ const WarehousePage = () => {
 
                 <Typography variant="body1">Текущие стеллажи:</Typography>
                 {newWarehouse.racks.map((rack, i) => (
-                    <Typography key={rack + i} variant="body2">
-                        Стеллаж {i + 1}: {
-                        rack.cells.map((cell, i) => (
-                            <Typography key={i} variant="body2">
-                                ячейка {i + 1}: {cell.length} x {cell.width} x {cell.height}
+                    <Typography key={i} variant="body2">
+                        Стеллаж {i + 1}:
+                        {rack.cells.map((cell, j) => (
+                            <Typography key={j} variant="body2" ml={2}>
+                                Ячейка {j + 1}: {cell.length} x {cell.width} x {cell.height}
                             </Typography>
                         ))}
                     </Typography>
                 ))}
 
-
                 <Button variant="contained" onClick={handleAddRack} sx={{ mt: 4, ml: 2 }}>Добавить стеллаж</Button>
                 <Button variant="contained" color="primary" sx={{ mt: 4, ml: 2 }} onClick={handleCreateWarehouse} disabled={isSubmitting}>Добавить склад</Button>
             </Box>
+
+            <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+                <DialogTitle>Удалить организацию?</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Вы уверены, что хотите удалить организацию "{organization?.name}"? Это действие необратимо.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setConfirmDeleteOpen(false)}>Отмена</Button>
+                    <Button
+                        onClick={async () => {
+                            await handleDeleteOrganization();
+                            setConfirmDeleteOpen(false);
+                        }}
+                        color="error"
+                        variant="contained"
+                    >
+                        Удалить
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };
