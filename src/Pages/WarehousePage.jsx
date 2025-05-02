@@ -8,7 +8,7 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
@@ -19,28 +19,18 @@ import { useNavigate } from "react-router-dom";
 const WarehousePage = () => {
     const [organization, setOrganization] = useState();
     const [warehouses, setWarehouses] = useState([]);
-    const [newOrganization, setNewOrganization] = useState({
-        name: "",
-        inn: "",
-        address: "",
-    });
+    const [newOrganization, setNewOrganization] = useState({ name: "", inn: "", address: "" });
     const [newWarehouse, setNewWarehouse] = useState({
         name: "",
         address: "",
         organizationId: localStorage.getItem("id"),
         racks: [],
     });
-    const [newRack, setNewRack] = useState({
-        capacity: 0,
-        cells: [],
-    });
-    const [newCell, setNewCell] = useState({
-        length: 1.0,
-        width: 1.0,
-        height: 1.0,
-    });
+    const [newRack, setNewRack] = useState({ capacity: 0, cells: [] });
+    const [newCell, setNewCell] = useState({ length: 1.0, width: 1.0, height: 1.0 });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [selectedWarehouseToDelete, setSelectedWarehouseToDelete] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -56,20 +46,36 @@ const WarehousePage = () => {
             const response = await axios.get(`http://localhost:8765/organization-service/api/organization/id?id=${id}`, {
                 headers: { id },
             });
-
-            if (response?.data) {
-                setOrganization(response.data);
-            } else {
-                toast.error("Ошибка загрузки данных организации.");
-            }
-        } catch (error) {
+            if (response?.data) setOrganization(response.data);
+            else toast.error("Ошибка загрузки данных организации.");
+        } catch {
             toast.error("Ошибка сервера при загрузке данных.");
+        }
+    };
+
+    const fetchWarehouses = async () => {
+        try {
+            const token = localStorage.getItem("jwtToken");
+            const response = await axios.get("http://localhost:8765/warehouse-service/api/warehouse", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setWarehouses(response.data || []);
+        } catch {
+            toast.error("Ошибка сервера при загрузке складов.");
         }
     };
 
     const handleCreateOrganization = async () => {
         if (!newOrganization.name || !newOrganization.inn || !newOrganization.address) {
             toast.error("Заполните все поля.");
+            return;
+        }
+        if (
+            !/^\d{9}$/.test(newOrganization.inn) ||
+            !newOrganization.name ||
+            !newOrganization.address
+        ) {
+            toast.error("Проверьте поля. ИНН должен содержать ровно 9 цифр.");
             return;
         }
         try {
@@ -81,8 +87,8 @@ const WarehousePage = () => {
             localStorage.setItem("id", response?.data?.id);
             toast.success("Организация успешно создана!");
             setNewOrganization({ name: "", inn: "", address: "" });
-            await fetchOrganization();
-        } catch (error) {
+            fetchOrganization();
+        } catch {
             toast.error("Ошибка при создании организации.");
         } finally {
             setIsSubmitting(false);
@@ -105,8 +111,8 @@ const WarehousePage = () => {
             });
             localStorage.setItem("id", response?.data?.id);
             toast.success("Организация успешно обновлена!");
-            await fetchOrganization();
-        } catch (error) {
+            fetchOrganization();
+        } catch {
             toast.error("Ошибка при обновлении организации.");
         } finally {
             setIsSubmitting(false);
@@ -123,26 +129,24 @@ const WarehousePage = () => {
             localStorage.clear();
             setOrganization(null);
             navigate('/');
-            await fetchOrganization();
-        } catch (error) {
+        } catch {
             toast.error("Ошибка при удалении организации.");
         }
     };
 
-    const fetchWarehouses = async () => {
+    const confirmDeleteWarehouse = async () => {
+        if (!selectedWarehouseToDelete) return;
         try {
             const token = localStorage.getItem("jwtToken");
-            const response = await axios.get("http://localhost:8765/warehouse-service/api/warehouse", {
+            await axios.delete(`http://localhost:8765/warehouse-service/api/warehouse/${selectedWarehouseToDelete}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
-            if (response.data) {
-                setWarehouses(response.data);
-            } else {
-                toast.error("Ошибка загрузки данных складов.");
-            }
-        } catch (error) {
-            toast.error("Ошибка сервера при загрузке данных.");
+            toast.success("Склад успешно удалён!");
+            fetchWarehouses();
+        } catch {
+            toast.error("Ошибка при удалении склада.");
+        } finally {
+            setSelectedWarehouseToDelete(null);
         }
     };
 
@@ -151,34 +155,23 @@ const WarehousePage = () => {
             toast.error("Заполните все размеры ячейки.");
             return;
         }
-
         setNewRack((prev) => ({
             ...prev,
             cells: [...prev.cells, newCell],
         }));
-
-        setNewCell({
-            length: 1.0,
-            width: 1.0,
-            height: 1.0,
-        });
+        setNewCell({ length: 1.0, width: 1.0, height: 1.0 });
     };
 
     const handleAddRack = () => {
         if (!newRack.capacity || newRack.cells.length === 0) {
-            toast.error("Заполните все поля для стеллажа и добавьте хотя бы одну ячейку.");
+            toast.error("Заполните все поля и добавьте хотя бы одну ячейку.");
             return;
         }
-
         setNewWarehouse((prev) => ({
             ...prev,
             racks: [...prev.racks, newRack],
         }));
-
-        setNewRack({
-            capacity: 0,
-            cells: [],
-        });
+        setNewRack({ capacity: 0, cells: [] });
     };
 
     const handleCreateWarehouse = async () => {
@@ -186,7 +179,6 @@ const WarehousePage = () => {
             toast.error("Заполните все поля склада.");
             return;
         }
-
         try {
             setIsSubmitting(true);
             const token = localStorage.getItem("jwtToken");
@@ -201,7 +193,7 @@ const WarehousePage = () => {
                 racks: [],
             });
             fetchWarehouses();
-        } catch (error) {
+        } catch {
             toast.error("Ошибка при создании склада.");
         } finally {
             setIsSubmitting(false);
@@ -217,28 +209,60 @@ const WarehousePage = () => {
             headerName: "Количество стоек",
             flex: 1,
         },
+        {
+            field: "actions",
+            headerName: "Действия",
+            flex: 1,
+            sortable: false,
+            renderCell: (params) => (
+                <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => setSelectedWarehouseToDelete(params.row.id)}
+                >
+                    Удалить
+                </Button>
+            ),
+        },
     ];
 
     return (
         <div>
             <NavBar />
             <Box sx={{ padding: "16px" }}>
-                {organization ? <Typography variant="h4" mb={2}>Управление организацией</Typography> : <Typography variant="h5" mb={2}>Добавить организацию</Typography>}
+                <Typography variant="h4" mb={2}>
+                    {organization ? "Управление организацией" : "Добавить организацию"}
+                </Typography>
                 <Grid container spacing={2} mb={4}>
-                    <Grid item xs={4}><TextField label="Название" fullWidth value={organization ? organization.name : newOrganization.name} onChange={(e) => organization ? setOrganization({ ...organization, name: e.target.value }) : setNewOrganization({ ...newOrganization, name: e.target.value })} /></Grid>
-                    <Grid item xs={4}><TextField label="ОНП" fullWidth value={organization ? organization.inn : newOrganization.inn} disabled={Boolean(organization)} onChange={(e) => setNewOrganization({ ...newOrganization, inn: e.target.value })} /></Grid>
-                    <Grid item xs={4}><TextField label="Адрес" fullWidth value={organization ? organization.address : newOrganization.address} onChange={(e) => organization ? setOrganization({ ...organization, address: e.target.value }) : setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
+                    <Grid item xs={4}><TextField label="Название" fullWidth value={organization?.name || newOrganization.name} onChange={(e) => organization ? setOrganization({ ...organization, name: e.target.value }) : setNewOrganization({ ...newOrganization, name: e.target.value })} /></Grid>
+                    <Grid item xs={4}><TextField
+                        label="ИНН"
+                        fullWidth
+                        disabled={Boolean(organization)}
+                        value={organization?.inn || newOrganization.inn}
+                        error={!/^\d{9}$/.test(organization?.inn || newOrganization.inn)}
+                        helperText={
+                            /^\d{9}$/.test(organization?.inn || newOrganization.inn)
+                                ? ""
+                                : "ИНН должен содержать ровно 9 цифр"
+                        }
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d{0,9}$/.test(value)) {
+                                if (organization) {
+                                    setOrganization({ ...organization, inn: value });
+                                } else {
+                                    setNewOrganization({ ...newOrganization, inn: value });
+                                }
+                            }
+                        }}
+                    /></Grid>
+                    <Grid item xs={4}><TextField label="Адрес" fullWidth value={organization?.address || newOrganization.address} onChange={(e) => organization ? setOrganization({ ...organization, address: e.target.value }) : setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
                     <Grid item xs={12}>
                         <Button variant="contained" onClick={organization ? handleUpdateOrganization : handleCreateOrganization} disabled={isSubmitting}>
-                            {organization ? 'Редактировать' : 'Добавить организацию'}
+                            {organization ? "Редактировать" : "Добавить организацию"}
                         </Button>
-                        <Button
-                            variant='outlined'
-                            color='error'
-                            sx={{ ml: 2 }}
-                            disabled={!organization}
-                            onClick={() => setConfirmDeleteOpen(true)}
-                        >
+                        <Button variant="outlined" color="error" sx={{ ml: 2 }} disabled={!organization} onClick={() => setConfirmDeleteOpen(true)}>
                             Удалить организацию
                         </Button>
                     </Grid>
@@ -264,7 +288,6 @@ const WarehousePage = () => {
                 </Grid>
 
                 <Typography variant="h5" mt={4} mb={2}>Добавить стеллаж</Typography>
-
                 <Grid container spacing={2} alignItems="center">
                     <Grid item xs={3} mb={2}>
                         <TextField
@@ -324,23 +347,23 @@ const WarehousePage = () => {
                     </Grid>
                 </Grid>
 
-                <Typography variant="body1">Текущие ячейки:</Typography>
+                <Typography variant="body1" mt={2}>Текущие ячейки:</Typography>
                 {newRack.cells.map((cell, i) => (
                     <Typography key={i} variant="body2">
                         Ячейка {i + 1}: {cell.length} x {cell.width} x {cell.height}
                     </Typography>
                 ))}
 
-                <Typography variant="body1">Текущие стеллажи:</Typography>
+                <Typography variant="body1" mt={2}>Текущие стеллажи:</Typography>
                 {newWarehouse.racks.map((rack, i) => (
-                    <Typography key={i} variant="body2">
-                        Стеллаж {i + 1}:
+                    <Box key={i}>
+                        <Typography variant="body2">Стеллаж {i + 1}:</Typography>
                         {rack.cells.map((cell, j) => (
                             <Typography key={j} variant="body2" ml={2}>
                                 Ячейка {j + 1}: {cell.length} x {cell.width} x {cell.height}
                             </Typography>
                         ))}
-                    </Typography>
+                    </Box>
                 ))}
 
                 <Button variant="contained" onClick={handleAddRack} sx={{ mt: 4, ml: 2 }}>Добавить стеллаж</Button>
@@ -350,22 +373,22 @@ const WarehousePage = () => {
             <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
                 <DialogTitle>Удалить организацию?</DialogTitle>
                 <DialogContent>
-                    <Typography>
-                        Вы уверены, что хотите удалить организацию "{organization?.name}"? Это действие необратимо.
-                    </Typography>
+                    <Typography>Вы уверены, что хотите удалить организацию "{organization?.name}"? Это действие необратимо.</Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setConfirmDeleteOpen(false)}>Отмена</Button>
-                    <Button
-                        onClick={async () => {
-                            await handleDeleteOrganization();
-                            setConfirmDeleteOpen(false);
-                        }}
-                        color="error"
-                        variant="contained"
-                    >
-                        Удалить
-                    </Button>
+                    <Button onClick={async () => { await handleDeleteOrganization(); setConfirmDeleteOpen(false); }} color="error" variant="contained">Удалить</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={Boolean(selectedWarehouseToDelete)} onClose={() => setSelectedWarehouseToDelete(null)}>
+                <DialogTitle>Удалить склад?</DialogTitle>
+                <DialogContent>
+                    <Typography>Вы уверены, что хотите удалить склад? Это действие необратимо.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setSelectedWarehouseToDelete(null)}>Отмена</Button>
+                    <Button onClick={confirmDeleteWarehouse} color="error" variant="contained">Удалить</Button>
                 </DialogActions>
             </Dialog>
         </div>
