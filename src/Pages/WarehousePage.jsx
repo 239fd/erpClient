@@ -178,7 +178,10 @@ const WarehousePage = () => {
             field: "racks",
             headerName: "Количество стоек",
             flex: 1,
-            valueGetter: (params) => params.row?.racks?.length || 0,
+            renderCell: (params) => {
+                const racks = params.row?.racks;
+                return Array.isArray(racks) ? racks.length : 0;
+            },
         },
     ];
 
