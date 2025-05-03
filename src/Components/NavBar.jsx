@@ -18,15 +18,13 @@ import { toast } from "react-toastify";
 import '../Styles/NavBar.css';
 
 import { ReactComponent as HomeIcon } from './Images/CompleteImage.svg';
+import { ReactComponent as GoodsImage } from './Images/product-icon.svg';
 import { ReactComponent as CheckIcon } from './Images/TransportationImage.svg';
 import { ReactComponent as LocalShippingIcon } from './Images/ReportImage.svg';
 import { ReactComponent as InventoryIcon } from './Images/GarbageImage.svg';
 import { ReactComponent as DeleteIcon } from './Images/ListImage.svg';
 import { ReactComponent as ListAltIcon } from './Images/WarehouseImage.svg';
 import { ReactComponent as AssessmentIcon } from './Images/ChartImage.svg';
-import { ReactComponent as BusinessIcon } from './Images/enter_kmim22s90f7v.svg';
-import { ReactComponent as OrderIcon } from './Images/ListImage.svg';
-import { ReactComponent as TrendingUpIcon } from './Images/GraphImage.svg';
 import { ReactComponent as ExitIcon } from "./Images/Exit.svg";
 
 export default function NavBar() {
@@ -73,6 +71,12 @@ export default function NavBar() {
             icon: <CheckIcon className="icon" />,
             label: "Отправить",
             path: "/send",
+            allowedRoles: ["worker"],
+        },
+        {
+            icon: <GoodsImage className="icon" />,
+            label: "Товар",
+            path: "/product",
             allowedRoles: ["worker"],
         },
         {

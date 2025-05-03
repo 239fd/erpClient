@@ -12,7 +12,6 @@ const DataTable = () => {
         { field: 'id', headerName: 'ID', flex: 0.5 },
         { field: 'name', headerName: 'Наименование', flex: 2 },
         { field: 'amount', headerName: 'Количество', flex: 1 },
-        { field: 'bestBeforeDate', headerName: 'Дата поступления', flex: 1 },
     ];
 
     const fetchData = async () => {

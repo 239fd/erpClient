@@ -17,6 +17,8 @@ import SendPage from "./Pages/SendPage";
 import SendGoods from "./Pages/Stages/SendGoods";
 import RevaluationPage from "./Pages/RevaluationPage";
 import WriteOffPage from "./Pages/WriteOffPage";
+import ForecastPage from "./Pages/ForecastPage";
+import ProductManagementPage from "./Pages/ProductManagementPage";
 
 function App() {
 
@@ -32,6 +34,7 @@ function App() {
                     <Route path="/take/take-goods" element={<ProtectedRoute allowedRoles={["worker"]}><TakeGoods /></ProtectedRoute>} />
                     <Route path="/send" element={<ProtectedRoute allowedRoles={("worker")}><SendPage /></ProtectedRoute>} />
                     <Route path="/send/send-goods" element={<ProtectedRoute allowedRoles={("worker")}><SendGoods /></ProtectedRoute>} />
+                    <Route path="/product" element={<ProtectedRoute allowedRoles={("worker")}> <ProductManagementPage /></ProtectedRoute>} />
 
                     <Route path="/writeoff" element={<ProtectedRoute allowedRoles={("accountant")}><WriteOffPage /></ProtectedRoute>} />
                     <Route path="/inventory" element={<ProtectedRoute allowedRoles={("accountant")}><InventoryPage /></ProtectedRoute>} />
