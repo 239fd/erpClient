@@ -32,6 +32,7 @@ const WarehousePage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [selectedWarehouseToDelete, setSelectedWarehouseToDelete] = useState(null);
+    const [innError, setInnError] = useState(false); // Состояние ошибки для УНП
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -72,7 +73,7 @@ const WarehousePage = () => {
             return;
         }
         if (!/^\d{9}$/.test(newOrganization.inn)) {
-            toast.error("ИНН должен содержать ровно 9 цифр.");
+            toast.error("УНП должен содержать ровно 9 цифр.");
             return;
         }
         try {
@@ -90,7 +91,7 @@ const WarehousePage = () => {
                 address: "",
                 organizationId: localStorage.getItem("id"),
                 racks: [],
-            })
+            });
         } catch {
             toast.error("Ошибка при создании организации.");
         } finally {
@@ -236,40 +237,43 @@ const WarehousePage = () => {
         <div>
             <NavBar />
             <Box sx={{ padding: "16px" }}>
-
                 <Typography variant="h4" mb={2}>
                     {organization ? "Управление организацией" : "Добавить организацию"}
                 </Typography>
                 <Grid container spacing={2} mb={4}>
                     <Grid item xs={4}><TextField label="Название" fullWidth value={organization?.name || newOrganization.name} onChange={(e) => organization ? setOrganization({ ...organization, name: e.target.value }) : setNewOrganization({ ...newOrganization, name: e.target.value })} /></Grid>
-                    <Grid item xs={4}><TextField
-                        label="ИНН"
-                        fullWidth
-                        disabled={Boolean(organization)}
-                        value={organization?.inn || newOrganization.inn}
-                        error={!/^\d{9}$/.test(organization?.inn || newOrganization.inn)}
-                        helperText={
-                            /^\d{9}$/.test(organization?.inn || newOrganization.inn)
-                                ? ""
-                                : "ИНН должен содержать ровно 9 цифр"
-                        }
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (/^\d{0,9}$/.test(value)) {
-                                if (organization) {
-                                    setOrganization({ ...organization, inn: value });
-                                } else {
-                                    setNewOrganization({ ...newOrganization, inn: value });
+                    <Grid item xs={4}>
+                        <TextField
+                            label="УНП"
+                            fullWidth
+                            disabled={Boolean(organization)}
+                            value={organization?.inn || newOrganization.inn}
+                            error={innError}
+                            helperText={innError ? "УНП должен содержать ровно 9 цифр" : ""}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d{0,9}$/.test(value)) {
+                                    if (organization) {
+                                        setOrganization({ ...organization, inn: value });
+                                    } else {
+                                        setNewOrganization({ ...newOrganization, inn: value });
+                                    }
                                 }
-                            }
-                        }}
-                    /></Grid>
+
+                                if (value.length === 9 && !/^\d{9}$/.test(value)) {
+                                    setInnError(true);
+                                } else {
+                                    setInnError(false);
+                                }
+                            }}
+                        />
+                    </Grid>
                     <Grid item xs={4}><TextField label="Адрес" fullWidth value={organization?.address || newOrganization.address} onChange={(e) => organization ? setOrganization({ ...organization, address: e.target.value }) : setNewOrganization({ ...newOrganization, address: e.target.value })} /></Grid>
                     <Grid item xs={12}>
-                        <Button variant="contained" onClick={organization ? handleUpdateOrganization : handleCreateOrganization} disabled={isSubmitting}>
+                        <Button variant="contained" sx={{ mr: 2, mb: 2 }} onClick={organization ? handleUpdateOrganization : handleCreateOrganization} disabled={isSubmitting}>
                             {organization ? "Редактировать" : "Добавить организацию"}
                         </Button>
-                        <Button variant="outlined" color="error" sx={{ ml: 2 }} disabled={!organization} onClick={() => setConfirmDeleteOpen(true)}>
+                        <Button variant="outlined" color="error" disabled={!organization} onClick={() => setConfirmDeleteOpen(true)}>
                             Удалить организацию
                         </Button>
                     </Grid>
@@ -369,24 +373,11 @@ const WarehousePage = () => {
             </Box>
 
             <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
-                <DialogTitle>Удалить организацию?</DialogTitle>
-                <DialogContent>
-                    <Typography>Вы уверены, что хотите удалить организацию "{organization?.name}"? Это действие необратимо.</Typography>
-                </DialogContent>
+                <DialogTitle>Удаление склада</DialogTitle>
+                <DialogContent>Вы уверены, что хотите удалить этот склад?</DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setConfirmDeleteOpen(false)}>Отмена</Button>
-                    <Button onClick={async () => { await handleDeleteOrganization(); setConfirmDeleteOpen(false); }} color="error" variant="contained">Удалить</Button>
-                </DialogActions>
-            </Dialog>
-
-            <Dialog open={Boolean(selectedWarehouseToDelete)} onClose={() => setSelectedWarehouseToDelete(null)}>
-                <DialogTitle>Удалить склад?</DialogTitle>
-                <DialogContent>
-                    <Typography>Вы уверены, что хотите удалить склад? Это действие необратимо.</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setSelectedWarehouseToDelete(null)}>Отмена</Button>
-                    <Button onClick={confirmDeleteWarehouse} color="error" variant="contained">Удалить</Button>
+                    <Button onClick={() => setConfirmDeleteOpen(false)} color="primary">Отмена</Button>
+                    <Button onClick={confirmDeleteWarehouse} color="error">Удалить</Button>
                 </DialogActions>
             </Dialog>
         </div>

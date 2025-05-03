@@ -1,8 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import InventoryPage from './Pages/InventoryPage';
-import OrdersPage from './Pages/OrdersPage';
-import SuppliersPage from './Pages/SuppliersPage';
 import WarehousePage from './Pages/WarehousePage';
 import ReportsPage from './Pages/ReportsPage';
 import MainPage from "./Pages/MainPage";
@@ -17,7 +15,6 @@ import SendPage from "./Pages/SendPage";
 import SendGoods from "./Pages/Stages/SendGoods";
 import RevaluationPage from "./Pages/RevaluationPage";
 import WriteOffPage from "./Pages/WriteOffPage";
-import ForecastPage from "./Pages/ForecastPage";
 import ProductManagementPage from "./Pages/ProductManagementPage";
 
 function App() {

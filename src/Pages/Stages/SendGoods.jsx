@@ -7,7 +7,11 @@ import {
     List,
     ListItem,
     ListItemText,
-    IconButton, FormControl, Select, InputLabel, MenuItem,
+    IconButton,
+    FormControl,
+    Select,
+    InputLabel,
+    MenuItem,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import NavBar from "../../Components/NavBar";
@@ -26,6 +30,7 @@ const SendGoods = () => {
         carNumber: "",
         documentType: "",
     });
+    const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const navigate = useNavigate();
@@ -43,16 +48,39 @@ const SendGoods = () => {
         );
     };
 
+    const validateFields = () => {
+        const newErrors = {};
+        const unpRegex = /^\d{9}$/;
+        const carNumberRegex = /^\d{4} [A-Z]{2}-\d{1}$/;
+
+        if (deliveryInfo.documentType !== "TN") {
+            if (!unpRegex.test(deliveryInfo.customerUnp)) {
+                newErrors.customerUnp = "УНП должен состоять из 9 цифр";
+            }
+            if (!carNumberRegex.test(deliveryInfo.carNumber)) {
+                newErrors.carNumber = "Формат номера: 1111 AA-1";
+            }
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async () => {
+        if (!validateFields()) return;
+
         setIsSubmitting(true);
         try {
             const token = localStorage.getItem("jwtToken");
 
-            const requestBody = {
-                productIds: selectedProducts.map((product) => Number(product.id)),
-                amounts: selectedProducts.map((product) => Number(product.amount)),
-                ...deliveryInfo,
-            };
+            const requestBody =
+                deliveryInfo.documentType === "TN"
+                    ? { documentType: "TN" }
+                    : {
+                        productIds: selectedProducts.map((product) => Number(product.id)),
+                        amounts: selectedProducts.map((product) => Number(product.amount)),
+                        ...deliveryInfo,
+                    };
 
             const response = await axios.post(
                 "http://localhost:8765/product-service/api/product/dispatch",
@@ -85,8 +113,10 @@ const SendGoods = () => {
 
     const isAddDisabled = !currentProduct.id || !currentProduct.amount;
     const isSubmitDisabled =
-        selectedProducts.length === 0 ||
-        Object.values(deliveryInfo).some((value) => !value);
+        isSubmitting ||
+        (deliveryInfo.documentType !== "TN" &&
+            (selectedProducts.length === 0 ||
+                Object.values(deliveryInfo).some((value) => !value)));
 
     return (
         <div>
@@ -100,7 +130,6 @@ const SendGoods = () => {
                 }}
             >
                 <Box
-                    className="Main"
                     sx={{
                         width: "90%",
                         maxWidth: "1200px",
@@ -112,14 +141,7 @@ const SendGoods = () => {
                     }}
                 >
                     {/* Левая секция */}
-                    <Box
-                        flex={1}
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                        }}
-                    >
+                    <Box flex={1} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                         <Typography variant="h6">Добавить товар</Typography>
                         <TextField
                             label="ID товара"
@@ -145,59 +167,14 @@ const SendGoods = () => {
                             Добавить
                         </Button>
 
-                        <Typography variant="h6" mt={4}>
-                            Данные доставки
-                        </Typography>
-                        <TextField
-                            label="Название организации"
-                            value={deliveryInfo.customerName}
-                            onChange={(e) =>
-                                setDeliveryInfo({ ...deliveryInfo, customerName: e.target.value })
-                            }
-                        />
-                        <TextField
-                            label="УНП Организации"
-                            value={deliveryInfo.customerUnp}
-                            onChange={(e) =>
-                                setDeliveryInfo({ ...deliveryInfo, customerUnp: e.target.value })
-                            }
-                        />
-                        <TextField
-                            label="Адрес доставки"
-                            value={deliveryInfo.customerAddress}
-                            onChange={(e) =>
-                                setDeliveryInfo({
-                                    ...deliveryInfo,
-                                    customerAddress: e.target.value,
-                                })
-                            }
-                        />
-                        <TextField
-                            label="ФИО Водителя"
-                            value={deliveryInfo.driverFullName}
-                            onChange={(e) =>
-                                setDeliveryInfo({
-                                    ...deliveryInfo,
-                                    driverFullName: e.target.value,
-                                })
-                            }
-                        />
-                        <TextField
-                            label="Номер Машины"
-                            value={deliveryInfo.carNumber}
-                            onChange={(e) =>
-                                setDeliveryInfo({
-                                    ...deliveryInfo,
-                                    carNumber: e.target.value,
-                                })
-                            }
-                        />
-                        <FormControl fullWidth>
+                        <FormControl fullWidth sx={{ mt: 4 }}>
                             <InputLabel id="document-type-label">Тип Документа</InputLabel>
                             <Select
+                                fullWidth
                                 labelId="document-type-label"
                                 id="document-type"
                                 value={deliveryInfo.documentType}
+                                label="Тип Документа"
                                 onChange={(e) =>
                                     setDeliveryInfo({
                                         ...deliveryInfo,
@@ -209,16 +186,81 @@ const SendGoods = () => {
                                 <MenuItem value="TN">TN</MenuItem>
                             </Select>
                         </FormControl>
+
+                        {deliveryInfo.documentType !== "TN" && (
+                            <>
+                                <Typography variant="h6" mt={4}>
+                                    Данные доставки
+                                </Typography>
+                                <TextField
+                                    label="Название организации"
+                                    value={deliveryInfo.customerName}
+                                    onChange={(e) =>
+                                        setDeliveryInfo({
+                                            ...deliveryInfo,
+                                            customerName: e.target.value,
+                                        })
+                                    }
+                                />
+                                <TextField
+                                    label="УНП Организации"
+                                    value={deliveryInfo.customerUnp}
+                                    error={!!errors.customerUnp}
+                                    helperText={errors.customerUnp}
+                                    onChange={(e) =>
+                                        setDeliveryInfo({
+                                            ...deliveryInfo,
+                                            customerUnp: e.target.value,
+                                        })
+                                    }
+                                />
+                                <TextField
+                                    label="Адрес доставки"
+                                    value={deliveryInfo.customerAddress}
+                                    onChange={(e) =>
+                                        setDeliveryInfo({
+                                            ...deliveryInfo,
+                                            customerAddress: e.target.value,
+                                        })
+                                    }
+                                />
+                                <TextField
+                                    label="ФИО Водителя"
+                                    value={deliveryInfo.driverFullName}
+                                    onChange={(e) =>
+                                        setDeliveryInfo({
+                                            ...deliveryInfo,
+                                            driverFullName: e.target.value,
+                                        })
+                                    }
+                                />
+                                <TextField
+                                    label="Номер Машины"
+                                    value={deliveryInfo.carNumber}
+                                    error={!!errors.carNumber}
+                                    helperText={errors.carNumber}
+                                    onChange={(e) =>
+                                        setDeliveryInfo({
+                                            ...deliveryInfo,
+                                            carNumber: e.target.value.toUpperCase(),
+                                        })
+                                    }
+                                />
+                            </>
+                        )}
+
                         <Button
                             variant="contained"
                             color="primary"
                             onClick={handleSubmit}
-                            disabled={isSubmitDisabled || isSubmitting}
+                            disabled={isSubmitDisabled}
+                            sx={{ mt: 2 }}
                         >
                             Отправить
                         </Button>
                     </Box>
 
+                    {/* Правая секция */}
                     <Box
                         flex={1}
                         sx={{

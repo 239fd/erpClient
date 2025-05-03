@@ -30,6 +30,7 @@ const initialFormState = {
     isNewOrganization: false
 };
 
+
 function formReducer(state, action) {
     switch (action.type) {
         case "SET_FIELD":
@@ -58,6 +59,9 @@ const RegisterPopup = ({ open, onClose }) => {
         }
     }, [open]);
 
+
+    const validateName = (name) => /^[А-Яа-яA-Za-z]{2,}$/.test(name.trim());
+    const validatePhone = (phone) => /^\+\d{6,12}$/.test(phone.trim());
     const validateLogin = (username) => /^[^#{}\]()&%$]{6,}$/.test(username);
     const validatePassword = (password) =>
         /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password);
@@ -77,6 +81,16 @@ const RegisterPopup = ({ open, onClose }) => {
 
         if (!validatePassword(password)) {
             toast.error("Пароль должен содержать не менее 8 символов, включать буквы, цифры и спецсимвол");
+            return;
+        }
+
+        if (!validateName(firstName) || !validateName(secondName) || !validateName(surname)) {
+            toast.error("Имя, фамилия и отчество должны содержать минимум 2 буквы и только буквы.");
+            return;
+        }
+
+        if (!validatePhone(phone)) {
+            toast.error("Телефон должен начинаться с '+' и содержать от 6 до 12 цифр.");
             return;
         }
 
