@@ -17,7 +17,6 @@ import SendPage from "./Pages/SendPage";
 import SendGoods from "./Pages/Stages/SendGoods";
 import RevaluationPage from "./Pages/RevaluationPage";
 import WriteOffPage from "./Pages/WriteOffPage";
-import ForecastPage from "./Pages/ForecastPage";
 
 function App() {
 

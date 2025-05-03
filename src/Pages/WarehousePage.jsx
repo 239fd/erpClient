@@ -27,7 +27,7 @@ const WarehousePage = () => {
         racks: [],
     });
     const [newRack, setNewRack] = useState({ capacity: 0, cells: [] });
-    const [newCell, setNewCell] = useState({ length: 1.0, width: 1.0, height: 1.0 });
+    const [cellCount, setCellCount] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [selectedWarehouseToDelete, setSelectedWarehouseToDelete] = useState(null);
@@ -150,16 +150,19 @@ const WarehousePage = () => {
         }
     };
 
-    const handleAddCell = () => {
-        if (!newCell.length || !newCell.width || !newCell.height) {
-            toast.error("Заполните все размеры ячейки.");
+    const handleAddCells = () => {
+        if (!newCell.length || !newCell.width || !newCell.height || cellCount < 1) {
+            toast.error("Заполните размеры и количество ячеек.");
             return;
         }
+
+        const newCells = Array.from({ length: cellCount }, () => ({ ...newCell }));
         setNewRack((prev) => ({
             ...prev,
-            cells: [...prev.cells, newCell],
+            cells: [...prev.cells, ...newCells],
         }));
         setNewCell({ length: 1.0, width: 1.0, height: 1.0 });
+        setCellCount(1);
     };
 
     const handleAddRack = () => {
